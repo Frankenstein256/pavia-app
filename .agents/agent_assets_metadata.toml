@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "z-TgQE6lkA6N0I3kZ-J1Z"
+uri = "file://artifacts/fundi/public/app-mockup.png"
+type = "image"
+title = "Fundi mobile app dashboard mockup"
+
+[[generated]]
+id = "umN1W5fPoqzFJt956JGBc"
+uri = "file://artifacts/fundi/public/professionals.png"
+type = "image"
+title = "Young Ghanaian professionals"
+
+[[generated]]
+id = "07YF_3hoGqegxhO8n3Sug"
+uri = "file://artifacts/fundi/public/texture.png"
+type = "image"
+title = "Abstract gold and green texture"
