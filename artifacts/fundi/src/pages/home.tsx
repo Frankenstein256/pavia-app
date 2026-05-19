@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   ArrowRight, 
@@ -7,13 +6,11 @@ import {
   Briefcase, 
   BookOpen, 
   ShieldCheck, 
-  TrendingUp,
-  CheckCircle2
+  TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,118 +29,13 @@ const itemVariants = {
   }
 };
 
-function WaitlistDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!name.trim() || !email.trim()) {
-      setError("Please fill in both fields.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    const existing = JSON.parse(localStorage.getItem("fundi_waitlist") || "[]");
-    const alreadyExists = existing.some((entry: { email: string }) => entry.email.toLowerCase() === email.toLowerCase());
-    if (alreadyExists) {
-      setError("This email is already on the waitlist.");
-      return;
-    }
-
-    existing.push({ name: name.trim(), email: email.trim(), joinedAt: new Date().toISOString() });
-    localStorage.setItem("fundi_waitlist", JSON.stringify(existing));
-    setSubmitted(true);
-  }
-
-  function handleClose(v: boolean) {
-    onOpenChange(v);
-    if (!v) {
-      setTimeout(() => {
-        setName("");
-        setEmail("");
-        setSubmitted(false);
-        setError("");
-      }, 300);
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md rounded-2xl p-8">
-        {submitted ? (
-          <div className="text-center py-6">
-            <div className="flex justify-center mb-4">
-              <CheckCircle2 className="w-16 h-16 text-primary" />
-            </div>
-            <DialogTitle className="text-2xl font-bold font-display text-primary mb-2">You're on the list!</DialogTitle>
-            <DialogDescription className="text-muted-foreground text-base">
-              We'll reach out to <strong>{email}</strong> when Fundi launches in your area. Stay ready.
-            </DialogDescription>
-          </div>
-        ) : (
-          <>
-            <DialogHeader className="mb-6">
-              <DialogTitle className="text-2xl font-bold font-display text-primary">Join the Waitlist</DialogTitle>
-              <DialogDescription className="text-muted-foreground">
-                Be the first to know when Fundi launches. No spam, ever.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="waitlist-name" className="font-semibold text-foreground">Full Name</Label>
-                <Input
-                  id="waitlist-name"
-                  data-testid="input-name"
-                  placeholder="Kwame Mensah"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="h-12 rounded-xl border-border focus:border-primary"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="waitlist-email" className="font-semibold text-foreground">Email Address</Label>
-                <Input
-                  id="waitlist-email"
-                  data-testid="input-email"
-                  type="email"
-                  placeholder="kwame@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl border-border focus:border-primary"
-                />
-              </div>
-              {error && <p className="text-sm text-destructive font-medium">{error}</p>}
-              <Button
-                type="submit"
-                data-testid="button-submit-waitlist"
-                size="lg"
-                className="w-full bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-13 text-base mt-2"
-              >
-                Secure My Spot
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </form>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
+function openForm() {
+  window.open(GOOGLE_FORM_URL, "_blank", "noopener,noreferrer");
 }
 
 export default function Home() {
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden selection:bg-secondary selection:text-primary">
-      <WaitlistDialog open={waitlistOpen} onOpenChange={setWaitlistOpen} />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -162,7 +54,7 @@ export default function Home() {
           </div>
           <Button
             data-testid="button-join-waitlist-nav"
-            onClick={() => setWaitlistOpen(true)}
+            onClick={openForm}
             className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
           >
             Join Waitlist
@@ -198,7 +90,7 @@ export default function Home() {
                 <Button
                   data-testid="button-join-waitlist-hero"
                   size="lg"
-                  onClick={() => setWaitlistOpen(true)}
+                  onClick={openForm}
                   className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg w-full sm:w-auto"
                 >
                   Join the Waitlist
@@ -259,7 +151,6 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Save */}
             <motion.div 
               whileHover={{ y: -10 }}
               className="bg-card p-10 rounded-[2rem] border border-border shadow-sm group hover:shadow-xl transition-all duration-300"
@@ -273,7 +164,6 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Rent */}
             <motion.div 
               whileHover={{ y: -10 }}
               className="bg-primary p-10 rounded-[2rem] border border-primary shadow-lg group hover:shadow-xl transition-all duration-300"
@@ -287,7 +177,6 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Work */}
             <motion.div 
               whileHover={{ y: -10 }}
               className="bg-card p-10 rounded-[2rem] border border-border shadow-sm group hover:shadow-xl transition-all duration-300"
@@ -301,7 +190,6 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Learn */}
             <motion.div 
               whileHover={{ y: -10 }}
               className="bg-card p-10 rounded-[2rem] border border-border shadow-sm group hover:shadow-xl transition-all duration-300"
@@ -372,7 +260,7 @@ export default function Home() {
             <Button
               data-testid="button-join-waitlist-cta"
               size="lg"
-              onClick={() => setWaitlistOpen(true)}
+              onClick={openForm}
               className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-10 text-xl w-full sm:w-auto"
             >
               Join the Waitlist
