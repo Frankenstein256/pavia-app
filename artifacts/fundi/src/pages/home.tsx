@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   ArrowRight, 
@@ -7,10 +7,13 @@ import {
   Briefcase, 
   BookOpen, 
   ShieldCheck, 
-  TrendingUp, 
-  Globe 
+  TrendingUp,
+  CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -29,9 +32,119 @@ const itemVariants = {
   }
 };
 
+function WaitlistDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (!name.trim() || !email.trim()) {
+      setError("Please fill in both fields.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    const existing = JSON.parse(localStorage.getItem("fundi_waitlist") || "[]");
+    const alreadyExists = existing.some((entry: { email: string }) => entry.email.toLowerCase() === email.toLowerCase());
+    if (alreadyExists) {
+      setError("This email is already on the waitlist.");
+      return;
+    }
+
+    existing.push({ name: name.trim(), email: email.trim(), joinedAt: new Date().toISOString() });
+    localStorage.setItem("fundi_waitlist", JSON.stringify(existing));
+    setSubmitted(true);
+  }
+
+  function handleClose(v: boolean) {
+    onOpenChange(v);
+    if (!v) {
+      setTimeout(() => {
+        setName("");
+        setEmail("");
+        setSubmitted(false);
+        setError("");
+      }, 300);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md rounded-2xl p-8">
+        {submitted ? (
+          <div className="text-center py-6">
+            <div className="flex justify-center mb-4">
+              <CheckCircle2 className="w-16 h-16 text-primary" />
+            </div>
+            <DialogTitle className="text-2xl font-bold font-display text-primary mb-2">You're on the list!</DialogTitle>
+            <DialogDescription className="text-muted-foreground text-base">
+              We'll reach out to <strong>{email}</strong> when Fundi launches in your area. Stay ready.
+            </DialogDescription>
+          </div>
+        ) : (
+          <>
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-2xl font-bold font-display text-primary">Join the Waitlist</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Be the first to know when Fundi launches. No spam, ever.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="waitlist-name" className="font-semibold text-foreground">Full Name</Label>
+                <Input
+                  id="waitlist-name"
+                  data-testid="input-name"
+                  placeholder="Kwame Mensah"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-12 rounded-xl border-border focus:border-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="waitlist-email" className="font-semibold text-foreground">Email Address</Label>
+                <Input
+                  id="waitlist-email"
+                  data-testid="input-email"
+                  type="email"
+                  placeholder="kwame@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 rounded-xl border-border focus:border-primary"
+                />
+              </div>
+              {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+              <Button
+                type="submit"
+                data-testid="button-submit-waitlist"
+                size="lg"
+                className="w-full bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-13 text-base mt-2"
+              >
+                Secure My Spot
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </form>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Home() {
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden selection:bg-secondary selection:text-primary">
+      <WaitlistDialog open={waitlistOpen} onOpenChange={setWaitlistOpen} />
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
@@ -47,7 +160,11 @@ export default function Home() {
             <a href="#work" className="hover:text-secondary transition-colors">Work</a>
             <a href="#learn" className="hover:text-secondary transition-colors">Learn</a>
           </div>
-          <Button className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6">
+          <Button
+            data-testid="button-join-waitlist-nav"
+            onClick={() => setWaitlistOpen(true)}
+            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+          >
             Join Waitlist
           </Button>
         </div>
@@ -78,8 +195,13 @@ export default function Home() {
                 Built for ambitious young Ghanaians. Save with purpose, finance your rent, find high-paying skills, and master your money—all in one place.
               </motion.p>
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg w-full sm:w-auto">
-                  Download Fundi
+                <Button
+                  data-testid="button-join-waitlist-hero"
+                  size="lg"
+                  onClick={() => setWaitlistOpen(true)}
+                  className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg w-full sm:w-auto"
+                >
+                  Join the Waitlist
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button size="lg" variant="outline" className="rounded-full h-14 px-8 text-lg font-bold border-primary text-primary hover:bg-primary/5 w-full sm:w-auto">
@@ -96,8 +218,8 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  <strong className="text-primary block text-lg">10,000+</strong>
-                  Ghanaians on the waitlist
+                  <strong className="text-primary block text-lg">Be the first to know</strong>
+                  Launching soon in Ghana
                 </p>
               </motion.div>
             </motion.div>
@@ -112,7 +234,6 @@ export default function Home() {
                 <img src="/app-mockup.png" alt="Fundi App Mockup" className="w-full h-full object-cover" />
               </div>
               
-              {/* Decorative elements */}
               <div className="absolute top-20 -left-16 bg-white p-4 rounded-2xl shadow-xl border border-border z-20 animate-[bounce_6s_infinite]">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
@@ -125,19 +246,6 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust / Social Proof */}
-      <section className="py-12 border-y border-border bg-primary/5">
-        <div className="container mx-auto px-6">
-          <p className="text-center text-sm font-bold text-muted-foreground mb-8 tracking-widest uppercase">Backed by top investors & trusted by</p>
-          <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-60 grayscale">
-            {/* Fake logos using icons as placeholders */}
-            <div className="flex items-center gap-2 font-display font-bold text-2xl"><ShieldCheck className="w-8 h-8" /> PayStack</div>
-            <div className="flex items-center gap-2 font-display font-bold text-2xl"><Globe className="w-8 h-8" /> Y Combinator</div>
-            <div className="flex items-center gap-2 font-display font-bold text-2xl"><TrendingUp className="w-8 h-8" /> MTN</div>
           </div>
         </div>
       </section>
@@ -258,11 +366,17 @@ export default function Home() {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-5xl md:text-7xl font-bold font-display text-primary mb-8">Take control of<br/>your tomorrow.</h2>
           <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Join thousands of young Ghanaians who are already using Fundi to build wealth and secure their futures.
+            Join young Ghanaians who are building wealth and securing their futures with Fundi.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-10 text-xl w-full sm:w-auto">
+            <Button
+              data-testid="button-join-waitlist-cta"
+              size="lg"
+              onClick={() => setWaitlistOpen(true)}
+              className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-10 text-xl w-full sm:w-auto"
+            >
               Join the Waitlist
+              <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
         </div>
