@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { 
   ArrowRight, 
   Wallet, 
@@ -49,7 +50,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8 font-medium">
             <a href="#save" className="hover:text-secondary transition-colors">Save</a>
             <a href="#rent" className="hover:text-secondary transition-colors">Rent</a>
-            <a href="#work" className="hover:text-secondary transition-colors">Work</a>
+            <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <a href="#learn" className="hover:text-secondary transition-colors">Learn</a>
           </div>
           <Button
