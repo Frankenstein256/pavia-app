@@ -45,7 +45,7 @@ export default function Home() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-secondary font-bold text-xl">F</span>
             </div>
-            <span className="font-display font-bold text-2xl tracking-tight text-primary">Fundi</span>
+            <span className="font-display font-bold text-2xl tracking-tight text-primary">Pavia</span>
           </div>
           <div className="hidden md:flex items-center gap-8 font-medium">
             <a href="#save" className="hover:text-secondary transition-colors">Save</a>
@@ -124,7 +124,7 @@ export default function Home() {
               className="relative hidden md:block"
             >
               <div className="relative z-10 rounded-[2.5rem] border-[8px] border-primary shadow-2xl overflow-hidden bg-white mx-auto w-[320px] aspect-[9/19] flex items-center justify-center">
-                <img src="/app-mockup.png" alt="Fundi App Mockup" className="w-full h-full object-cover" />
+                <img src="/app-mockup.png" alt="Pavia App Mockup" className="w-full h-full object-cover" />
               </div>
               
               <div className="absolute top-20 -left-16 bg-white p-4 rounded-2xl shadow-xl border border-border z-20 animate-[bounce_6s_infinite]">
@@ -187,7 +187,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold font-display text-primary mb-4" id="work">Find Skilled Work</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Connect with vetted gigs and remote opportunities. Get paid directly into your Fundi wallet with zero hidden fees. Built for freelancers and creators.
+                Connect with vetted gigs and remote opportunities. Get paid directly into your Pavia wallet with zero hidden fees. Built for freelancers and creators.
               </p>
             </motion.div>
 
@@ -217,7 +217,7 @@ export default function Home() {
             <div>
               <h2 className="text-4xl md:text-5xl font-bold font-display text-secondary mb-6">Designed for the reality of Accra.</h2>
               <p className="text-primary-foreground/80 text-xl leading-relaxed mb-8">
-                We didn't just copy a western app. We built Fundi from the ground up for the hustle, the ambition, and the unique challenges of building a life in Ghana right now.
+                We didn't just copy a western app. We built Pavia from the ground up for the hustle, the ambition, and the unique challenges of building a life in Ghana right now.
               </p>
               <ul className="space-y-4 text-primary-foreground">
                 <li className="flex items-center gap-3">
@@ -255,7 +255,7 @@ export default function Home() {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-5xl md:text-7xl font-bold font-display text-primary mb-8">Take control of<br/>your tomorrow.</h2>
           <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Join young Ghanaians who are building wealth and securing their futures with Fundi.
+            Join young Ghanaians who are building wealth and securing their futures with Pavia.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
@@ -280,7 +280,7 @@ export default function Home() {
                 <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
                   <span className="text-primary font-bold text-xl">F</span>
                 </div>
-                <span className="font-display font-bold text-2xl tracking-tight text-secondary">Fundi</span>
+                <span className="font-display font-bold text-2xl tracking-tight text-secondary">Pavia</span>
               </div>
               <p className="text-primary-foreground/60 max-w-sm">
                 The financial co-pilot for a new generation of young Ghanaians.
@@ -309,7 +309,7 @@ export default function Home() {
           </div>
           
           <div className="pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4 text-primary-foreground/40 text-sm">
-            <p>© {new Date().getFullYear()} Fundi Financial Technologies. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Pavia Financial Technologies. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-secondary transition-colors">Twitter</a>
               <a href="#" className="hover:text-secondary transition-colors">Instagram</a>

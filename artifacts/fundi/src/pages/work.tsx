@@ -146,7 +146,7 @@ export default function Work() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-secondary font-bold text-xl">F</span>
             </div>
-            <span className="font-display font-bold text-2xl tracking-tight text-primary">Fundi</span>
+            <span className="font-display font-bold text-2xl tracking-tight text-primary">Pavia</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 font-medium">
             <Link href="/#save" className="hover:text-secondary transition-colors">Save</Link>
@@ -357,7 +357,7 @@ export default function Work() {
         <div className="container mx-auto max-w-4xl text-center relative">
           <h2 className="text-4xl md:text-5xl font-bold font-display text-secondary mb-4">Are you a freelancer?</h2>
           <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-            Join the Fundi Work marketplace and get discovered by clients across Ghana. List your skills, set your rate, get paid on time.
+            Join the Pavia Work marketplace and get discovered by clients across Ghana. List your skills, set your rate, get paid on time.
           </p>
           <Button
             data-testid="button-list-skills-cta"
@@ -374,7 +374,7 @@ export default function Work() {
       {/* Footer */}
       <footer className="bg-primary text-primary-foreground py-10 border-t border-primary/20">
         <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-4 text-primary-foreground/40 text-sm">
-          <p>© {new Date().getFullYear()} Fundi Financial Technologies. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Pavia Financial Technologies. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-secondary transition-colors">Twitter</a>
             <a href="#" className="hover:text-secondary transition-colors">Instagram</a>
