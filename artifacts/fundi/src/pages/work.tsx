@@ -6,10 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
-const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
+const HIRE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
+const LIST_SKILLS_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeuzZia6Ja2sOoVKrJ1ymkNdNMe9PK_YGTtSWWduy-bIgVXzw/viewform";
 
 function openForm() {
-  window.open(GOOGLE_FORM_URL, "_blank", "noopener,noreferrer");
+  window.open(HIRE_FORM_URL, "_blank", "noopener,noreferrer");
+}
+
+function openListSkillsForm() {
+  window.open(LIST_SKILLS_FORM_URL, "_blank", "noopener,noreferrer");
 }
 
 const CATEGORIES = [
@@ -362,7 +367,7 @@ export default function Work() {
           <Button
             data-testid="button-list-skills-cta"
             size="lg"
-            onClick={openForm}
+            onClick={openListSkillsForm}
             className="bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-14 px-10 text-lg"
           >
             List Your Skills
