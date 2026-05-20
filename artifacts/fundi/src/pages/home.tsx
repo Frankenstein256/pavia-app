@@ -48,7 +48,7 @@ export default function Home() {
             <span className="font-display font-bold text-2xl tracking-tight text-primary">Pavia</span>
           </div>
           <div className="hidden md:flex items-center gap-8 font-medium">
-            <a href="#save" className="hover:text-secondary transition-colors">Save</a>
+            <Link href="/save" className="hover:text-secondary transition-colors">Save</Link>
             <a href="#rent" className="hover:text-secondary transition-colors">Rent</a>
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <a href="#learn" className="hover:text-secondary transition-colors">Learn</a>
