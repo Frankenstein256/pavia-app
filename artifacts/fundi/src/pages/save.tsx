@@ -6,7 +6,6 @@ import {
   GraduationCap,
   Briefcase,
   ShieldCheck,
-  TrendingUp,
   Lock,
   Zap,
   Target,
@@ -29,10 +28,9 @@ const GOALS = [
     target: 6000,
     saved: 4320,
     color: "bg-primary",
-    textColor: "text-secondary",
     barColor: "bg-secondary",
     months: 2,
-    interest: "11%",
+    interest: "Competitive returns",
   },
   {
     id: 2,
@@ -41,10 +39,9 @@ const GOALS = [
     target: 12000,
     saved: 5800,
     color: "bg-card",
-    textColor: "text-primary",
     barColor: "bg-primary",
     months: 5,
-    interest: "12%",
+    interest: "Earn as you save",
   },
   {
     id: 3,
@@ -53,10 +50,9 @@ const GOALS = [
     target: 20000,
     saved: 8500,
     color: "bg-card",
-    textColor: "text-primary",
     barColor: "bg-primary",
     months: 8,
-    interest: "12%",
+    interest: "Earn as you save",
   },
   {
     id: 4,
@@ -65,10 +61,9 @@ const GOALS = [
     target: 5000,
     saved: 5000,
     color: "bg-card",
-    textColor: "text-primary",
     barColor: "bg-secondary",
     months: 0,
-    interest: "10%",
+    interest: "Competitive returns",
     complete: true,
   },
 ];
@@ -89,8 +84,8 @@ const STEPS = [
   {
     step: "03",
     icon: Lock,
-    title: "Earn interest & reach it",
-    desc: "Your savings earn up to 12% interest annually. Lock your stash to stay disciplined, or keep it flexible — your choice.",
+    title: "Earn as you save",
+    desc: "Your savings earn competitive returns from day one. Lock your stash to stay disciplined, or keep it flexible — your choice.",
   },
 ];
 
@@ -132,7 +127,7 @@ export default function Save() {
           </Link>
           <div className="hidden md:flex items-center gap-8 font-medium">
             <Link href="/save" className="text-secondary font-semibold">Save</Link>
-            <Link href="/#rent" className="hover:text-secondary transition-colors">Rent</Link>
+            <Link href="/rent" className="hover:text-secondary transition-colors">Rent</Link>
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <Link href="/#learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
@@ -160,7 +155,7 @@ export default function Save() {
           >
             <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 text-primary font-semibold text-sm mb-6">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              Earn up to 12% interest annually
+              Earn as you save — no hidden fees
             </motion.div>
             <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold font-display leading-[1.1] text-primary mb-6">
               Save with <span className="text-secondary">Purpose.</span>
@@ -196,12 +191,12 @@ export default function Save() {
             className="mt-20 grid grid-cols-3 gap-6 max-w-2xl mx-auto"
           >
             {[
-              { value: "12%", label: "Annual interest" },
+              { value: "Returns", label: "Competitive on savings" },
               { value: "GHS 0", label: "Maintenance fee" },
               { value: "24 hrs", label: "Withdrawal time" },
             ].map((stat) => (
               <div key={stat.label} className="text-center p-6 bg-card rounded-2xl border border-border">
-                <p className="text-3xl font-bold font-display text-secondary mb-1">{stat.value}</p>
+                <p className="text-2xl font-bold font-display text-secondary mb-1">{stat.value}</p>
                 <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
               </div>
             ))}
@@ -257,7 +252,7 @@ export default function Save() {
 
                   <h3 className={`text-xl font-bold font-display mb-1 ${isInverted ? "text-secondary" : "text-primary"}`}>{goal.label}</h3>
                   <p className={`text-sm mb-5 ${isInverted ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                    Earning {goal.interest} interest · Auto-save enabled
+                    {goal.interest} · Auto-save enabled
                   </p>
 
                   <ProgressBar pct={pct} barColor={goal.barColor} />
@@ -276,7 +271,7 @@ export default function Save() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className={`text-3xl font-bold font-display ${isInverted ? "text-secondary" : "text-secondary"}`}>{pct}%</p>
+                      <p className={`text-3xl font-bold font-display text-secondary`}>{pct}%</p>
                     </div>
                   </div>
                 </motion.div>
@@ -297,7 +292,6 @@ export default function Save() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-10 relative">
-            {/* Connector line */}
             <div className="hidden md:block absolute top-10 left-[calc(16.666%+2rem)] right-[calc(16.666%+2rem)] h-px bg-border z-0" />
 
             {STEPS.map((s, i) => {
@@ -324,7 +318,7 @@ export default function Save() {
         </div>
       </section>
 
-      {/* Interest callout */}
+      {/* Returns callout */}
       <section className="py-20 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary -z-20" />
         <div className="container mx-auto max-w-5xl">
@@ -334,13 +328,13 @@ export default function Save() {
                 Your money works while you sleep.
               </h2>
               <p className="text-primary-foreground/80 text-lg leading-relaxed mb-8">
-                Every cedi in your savings stash earns interest from day one. No minimums, no lock-in periods unless you choose them. Just consistent, compounding growth.
+                Every cedi in your savings stash earns competitive returns from day one. No minimums, no lock-in periods unless you choose them. Just consistent, compounding growth.
               </p>
               <ul className="space-y-3 text-primary-foreground">
                 {[
-                  "Up to 12% annual interest on locked savings",
-                  "Flexible stashes earn 10% — withdraw anytime",
-                  "Interest calculated daily, paid monthly",
+                  "Competitive returns on your savings",
+                  "Flexible stashes — earn as you save, withdraw anytime",
+                  "Returns calculated daily, credited monthly",
                   "Zero hidden charges or maintenance fees",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3">
@@ -351,12 +345,12 @@ export default function Save() {
               </ul>
             </div>
             <div className="bg-white/10 rounded-3xl p-8 border border-secondary/20">
-              <p className="text-secondary font-bold text-sm uppercase tracking-widest mb-6">Interest calculator</p>
+              <p className="text-secondary font-bold text-sm uppercase tracking-widest mb-6">Savings example</p>
               {[
                 { label: "You save monthly", value: "GHS 500" },
-                { label: "Annual interest rate", value: "12%" },
-                { label: "After 12 months", value: "GHS 6,340" },
-                { label: "Your earnings", value: "+ GHS 340" },
+                { label: "Savings period", value: "12 months" },
+                { label: "Your total saved", value: "GHS 6,000" },
+                { label: "Plus returns earned", value: "+ GHS varies" },
               ].map((row, i) => (
                 <div key={row.label} className={`flex justify-between items-center py-3 ${i < 3 ? "border-b border-white/10" : ""}`}>
                   <span className="text-primary-foreground/70 text-sm">{row.label}</span>

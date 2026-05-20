@@ -155,7 +155,7 @@ export default function Work() {
           </Link>
           <div className="hidden md:flex items-center gap-8 font-medium">
             <Link href="/save" className="hover:text-secondary transition-colors">Save</Link>
-            <Link href="/#rent" className="hover:text-secondary transition-colors">Rent</Link>
+            <Link href="/rent" className="hover:text-secondary transition-colors">Rent</Link>
             <Link href="/work" className="text-secondary font-semibold">Work</Link>
             <Link href="/#learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>

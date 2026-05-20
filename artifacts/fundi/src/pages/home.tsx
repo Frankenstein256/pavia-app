@@ -49,7 +49,7 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-8 font-medium">
             <Link href="/save" className="hover:text-secondary transition-colors">Save</Link>
-            <a href="#rent" className="hover:text-secondary transition-colors">Rent</a>
+            <Link href="/rent" className="hover:text-secondary transition-colors">Rent</Link>
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <a href="#learn" className="hover:text-secondary transition-colors">Learn</a>
           </div>
