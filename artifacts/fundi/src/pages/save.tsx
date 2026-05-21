@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
   Home as HomeIcon,
@@ -12,13 +12,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const WAITLIST_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
-
-function openWaitlist() {
-  window.open(WAITLIST_URL, "_blank", "noopener,noreferrer");
-}
 
 const GOALS = [
   {
@@ -114,6 +107,7 @@ function ProgressBar({ pct, barColor }: { pct: number; barColor: string }) {
 }
 
 export default function Save() {
+  const [, navigate] = useLocation();
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
@@ -138,13 +132,16 @@ export default function Save() {
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
-          <Button
-            data-testid="button-start-saving-nav"
-            onClick={openWaitlist}
-            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
-          >
-            Start Saving
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="font-semibold text-primary hover:text-secondary transition-colors hidden md:block text-sm">Log In</Link>
+            <Button
+              data-testid="button-start-saving-nav"
+              onClick={() => navigate("/signup")}
+              className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+            >
+              Start Saving
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -174,7 +171,7 @@ export default function Save() {
               <Button
                 data-testid="button-start-saving-hero"
                 size="lg"
-                onClick={openWaitlist}
+                onClick={() => navigate("/signup")}
                 className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg"
               >
                 Start Saving Today
@@ -383,7 +380,7 @@ export default function Save() {
           <Button
             data-testid="button-start-saving-cta"
             size="lg"
-            onClick={openWaitlist}
+            onClick={() => navigate("/signup")}
             className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-12 text-xl"
           >
             Start Saving

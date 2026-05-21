@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
   BookOpen,
@@ -18,13 +18,6 @@ import {
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const WAITLIST_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
-
-function openWaitlist() {
-  window.open(WAITLIST_URL, "_blank", "noopener,noreferrer");
-}
 
 const CATEGORIES = ["All", "Finance", "Business", "Marketing", "Design", "Real Estate"];
 
@@ -231,7 +224,7 @@ function CourseCard({ course }: { course: typeof COURSES[0] }) {
         {/* CTA */}
         <Button
           data-testid={`button-start-course-${course.id}`}
-          onClick={openWaitlist}
+          onClick={() => navigate("/signup")}
           className="mt-auto w-full bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-11"
         >
           <Play className="w-4 h-4 mr-2 fill-current" />
@@ -243,6 +236,7 @@ function CourseCard({ course }: { course: typeof COURSES[0] }) {
 }
 
 export default function Learn() {
+  const [, navigate] = useLocation();
   const [activeCategory, setActiveCategory] = useState("All");
 
   const filtered =
@@ -274,13 +268,16 @@ export default function Learn() {
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <Link href="/learn" className="text-secondary font-semibold">Learn</Link>
           </div>
-          <Button
-            data-testid="button-start-learning-nav"
-            onClick={openWaitlist}
-            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
-          >
-            Start Learning
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="font-semibold text-primary hover:text-secondary transition-colors hidden md:block text-sm">Log In</Link>
+            <Button
+              data-testid="button-start-learning-nav"
+              onClick={() => navigate("/signup")}
+              className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+            >
+              Start Learning
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -315,7 +312,7 @@ export default function Learn() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={openWaitlist}
+                onClick={() => navigate("/signup")}
                 className="rounded-full h-14 px-8 text-lg font-bold border-primary text-primary hover:bg-primary/5"
               >
                 Get Certified
@@ -456,7 +453,7 @@ export default function Learn() {
           <Button
             data-testid="button-get-certified-cta"
             size="lg"
-            onClick={openWaitlist}
+            onClick={() => navigate("/signup")}
             className="bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-14 px-10 text-lg"
           >
             Get Certified

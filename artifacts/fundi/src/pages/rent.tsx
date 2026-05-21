@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
   CheckCircle2,
@@ -14,13 +14,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const WAITLIST_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
-
-function openWaitlist() {
-  window.open(WAITLIST_URL, "_blank", "noopener,noreferrer");
-}
 
 const HOW_IT_WORKS = [
   {
@@ -100,6 +93,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function Rent() {
+  const [, navigate] = useLocation();
   const [monthlyRent, setMonthlyRent] = useState(1500);
   const [months, setMonths] = useState(12);
 
@@ -132,13 +126,16 @@ export default function Rent() {
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
-          <Button
-            data-testid="button-apply-rent-nav"
-            onClick={openWaitlist}
-            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
-          >
-            Apply Now
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="font-semibold text-primary hover:text-secondary transition-colors hidden md:block text-sm">Log In</Link>
+            <Button
+              data-testid="button-apply-rent-nav"
+              onClick={() => navigate("/signup")}
+              className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+            >
+              Apply Now
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -169,7 +166,7 @@ export default function Rent() {
               <Button
                 data-testid="button-apply-rent-hero"
                 size="lg"
-                onClick={openWaitlist}
+                onClick={() => navigate("/signup")}
                 className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg"
               >
                 Apply for Rent Finance
@@ -322,7 +319,7 @@ export default function Rent() {
 
               <Button
                 data-testid="button-apply-rent-calculator"
-                onClick={openWaitlist}
+                onClick={() => navigate("/signup")}
                 className="w-full bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-13 mt-2"
               >
                 Apply for Rent Finance
@@ -346,7 +343,7 @@ export default function Rent() {
               <Button
                 data-testid="button-apply-rent-eligibility"
                 size="lg"
-                onClick={openWaitlist}
+                onClick={() => navigate("/signup")}
                 className="bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-14 px-8 text-lg"
               >
                 Check My Eligibility
@@ -405,7 +402,7 @@ export default function Rent() {
           <Button
             data-testid="button-apply-rent-cta"
             size="lg"
-            onClick={openWaitlist}
+            onClick={() => navigate("/signup")}
             className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-12 text-xl"
           >
             Apply for Rent Finance

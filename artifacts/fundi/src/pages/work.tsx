@@ -1,21 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Search, MapPin, Star, SlidersHorizontal, ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
-const HIRE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
-const LIST_SKILLS_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeuzZia6Ja2sOoVKrJ1ymkNdNMe9PK_YGTtSWWduy-bIgVXzw/viewform";
-
-function openForm() {
-  window.open(HIRE_FORM_URL, "_blank", "noopener,noreferrer");
-}
-
-function openListSkillsForm() {
-  window.open(LIST_SKILLS_FORM_URL, "_blank", "noopener,noreferrer");
-}
 
 const CATEGORIES = [
   "All Skills",
@@ -125,6 +114,7 @@ const cardVariants = {
 };
 
 export default function Work() {
+  const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All Skills");
   const [sortOpen, setSortOpen] = useState(false);
@@ -166,13 +156,16 @@ export default function Work() {
             <Link href="/work" className="text-secondary font-semibold">Work</Link>
             <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
-          <Button
-            data-testid="button-join-waitlist-work-nav"
-            onClick={openForm}
-            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
-          >
-            Join Waitlist
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="font-semibold text-primary hover:text-secondary transition-colors hidden md:block text-sm">Log In</Link>
+            <Button
+              data-testid="button-get-started-work-nav"
+              onClick={() => navigate("/signup")}
+              className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+            >
+              Get Started
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -343,7 +336,7 @@ export default function Work() {
                       </div>
                       <Button
                         data-testid={`button-hire-${designer.id}`}
-                        onClick={openForm}
+                        onClick={() => navigate("/signup")}
                         className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-5"
                       >
                         Hire Now
@@ -374,7 +367,7 @@ export default function Work() {
           <Button
             data-testid="button-list-skills-cta"
             size="lg"
-            onClick={openListSkillsForm}
+            onClick={() => navigate("/signup")}
             className="bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-14 px-10 text-lg"
           >
             List Your Skills

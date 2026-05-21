@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
   Wallet,
@@ -14,13 +14,6 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const SIGNUP_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfTWUNdmslspAxFN5p-olxLxdcLgOWBIcaRv208FDqrErRCtA/viewform";
-
-function openSignup() {
-  window.open(SIGNUP_URL, "_blank", "noopener,noreferrer");
-}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -119,6 +112,7 @@ const PaviaLogo = () => (
 );
 
 export default function Home() {
+  const [, navigate] = useLocation();
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden selection:bg-secondary selection:text-primary">
 
@@ -135,13 +129,16 @@ export default function Home() {
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
             <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
-          <Button
-            data-testid="button-get-started-nav"
-            onClick={openSignup}
-            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
-          >
-            Get Started Free
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="font-semibold text-primary hover:text-secondary transition-colors hidden md:block text-sm">Log In</Link>
+            <Button
+              data-testid="button-get-started-nav"
+              onClick={() => navigate("/signup")}
+              className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+            >
+              Get Started Free
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -175,7 +172,7 @@ export default function Home() {
                 <Button
                   data-testid="button-get-started-hero"
                   size="lg"
-                  onClick={openSignup}
+                  onClick={() => navigate("/signup")}
                   className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg w-full sm:w-auto"
                 >
                   Get Started Free
@@ -490,7 +487,7 @@ export default function Home() {
               <Button
                 data-testid="button-get-started-cta"
                 size="lg"
-                onClick={openSignup}
+                onClick={() => navigate("/signup")}
                 className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-10 text-xl w-full sm:w-auto"
               >
                 Get Started Free
