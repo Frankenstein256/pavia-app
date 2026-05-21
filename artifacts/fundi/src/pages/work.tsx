@@ -157,7 +157,7 @@ export default function Work() {
             <Link href="/save" className="hover:text-secondary transition-colors">Save</Link>
             <Link href="/rent" className="hover:text-secondary transition-colors">Rent</Link>
             <Link href="/work" className="text-secondary font-semibold">Work</Link>
-            <Link href="/#learn" className="hover:text-secondary transition-colors">Learn</Link>
+            <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
           <Button
             data-testid="button-join-waitlist-work-nav"

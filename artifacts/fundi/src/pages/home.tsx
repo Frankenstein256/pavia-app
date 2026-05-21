@@ -51,7 +51,7 @@ export default function Home() {
             <Link href="/save" className="hover:text-secondary transition-colors">Save</Link>
             <Link href="/rent" className="hover:text-secondary transition-colors">Rent</Link>
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
-            <a href="#learn" className="hover:text-secondary transition-colors">Learn</a>
+            <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
           <Button
             data-testid="button-join-waitlist-nav"

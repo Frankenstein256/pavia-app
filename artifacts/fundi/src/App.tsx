@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Work from "@/pages/work";
 import Save from "@/pages/save";
 import Rent from "@/pages/rent";
+import Learn from "@/pages/learn";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/save" component={Save} />
       <Route path="/rent" component={Rent} />
       <Route path="/work" component={Work} />
+      <Route path="/learn" component={Learn} />
       <Route component={NotFound} />
     </Switch>
   );

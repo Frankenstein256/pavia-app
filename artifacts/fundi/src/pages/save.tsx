@@ -129,7 +129,7 @@ export default function Save() {
             <Link href="/save" className="text-secondary font-semibold">Save</Link>
             <Link href="/rent" className="hover:text-secondary transition-colors">Rent</Link>
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
-            <Link href="/#learn" className="hover:text-secondary transition-colors">Learn</Link>
+            <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
           <Button
             data-testid="button-start-saving-nav"

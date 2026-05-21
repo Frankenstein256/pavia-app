@@ -123,7 +123,7 @@ export default function Rent() {
             <Link href="/save" className="hover:text-secondary transition-colors">Save</Link>
             <Link href="/rent" className="text-secondary font-semibold">Rent</Link>
             <Link href="/work" className="hover:text-secondary transition-colors">Work</Link>
-            <Link href="/#learn" className="hover:text-secondary transition-colors">Learn</Link>
+            <Link href="/learn" className="hover:text-secondary transition-colors">Learn</Link>
           </div>
           <Button
             data-testid="button-apply-rent-nav"
