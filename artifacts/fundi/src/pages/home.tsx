@@ -42,8 +42,15 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-secondary font-bold text-xl">P</span>
+            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
+              <svg viewBox="0 0 36 36" className="w-7 h-7 text-secondary" fill="currentColor">
+                <circle cx="9" cy="12" r="2.8" />
+                <path d="M 5,17.5 A 4,4 0 0 0 13,17.5 Z" />
+                <circle cx="18" cy="9" r="3.5" />
+                <path d="M 13,15.5 A 5,5 0 0 0 23,15.5 Z" />
+                <circle cx="27" cy="12" r="2.8" />
+                <path d="M 23,17.5 A 4,4 0 0 0 31,17.5 Z" />
+              </svg>
             </div>
             <span className="font-display font-bold text-2xl tracking-tight text-primary">Pavia</span>
           </div>
