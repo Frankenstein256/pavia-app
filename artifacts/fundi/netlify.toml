@@ -1,0 +1,3 @@
+[build]
+  command = "pnpm --filter @workspace/fundi... run build"
+  publish = "dist/public"
