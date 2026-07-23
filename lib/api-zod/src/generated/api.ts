@@ -80,3 +80,52 @@ export const LogoutResponse = zod.object({
 })
 
 
+/**
+ * @summary List freelancer profiles
+ */
+export const ListFreelancersQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "category": zod.coerce.string().optional()
+})
+
+export const ListFreelancersResponse = zod.object({
+  "freelancers": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "skillCategory": zod.string(),
+  "location": zod.string(),
+  "rateGhs": zod.number(),
+  "bio": zod.string(),
+  "portfolioImageUrl": zod.string().nullish(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
+ * @summary Create a freelancer profile
+ */
+
+
+
+
+export const createFreelancerBodyBioMin = 10;
+
+
+
+
+
+export const CreateFreelancerBody = zod.object({
+  "name": zod.string().min(1),
+  "skillCategory": zod.string().min(1),
+  "location": zod.string().min(1),
+  "rateGhs": zod.number().min(1),
+  "bio": zod.string().min(createFreelancerBodyBioMin),
+  "portfolioImageUrl": zod.string().optional(),
+  "email": zod.string().min(1),
+  "phone": zod.string().min(1)
+})
+
+

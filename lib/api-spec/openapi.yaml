@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: auth
     description: Authentication operations
+  - name: freelancers
+    description: Freelancer marketplace operations
 paths:
   /healthz:
     get:
@@ -115,6 +117,54 @@ paths:
               schema:
                 $ref: "#/components/schemas/MessageResponse"
 
+  /freelancers:
+    get:
+      operationId: listFreelancers
+      tags: [freelancers]
+      summary: List freelancer profiles
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of freelancers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelancerListResponse"
+
+    post:
+      operationId: createFreelancer
+      tags: [freelancers]
+      summary: Create a freelancer profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FreelancerInput"
+      responses:
+        "201":
+          description: Freelancer profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelancerResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -188,3 +238,73 @@ components:
       properties:
         message:
           type: string
+
+    Freelancer:
+      type: object
+      required: [id, name, skillCategory, location, rateGhs, bio, email, phone, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        skillCategory:
+          type: string
+        location:
+          type: string
+        rateGhs:
+          type: integer
+        bio:
+          type: string
+        portfolioImageUrl:
+          type: string
+          nullable: true
+        email:
+          type: string
+        phone:
+          type: string
+        createdAt:
+          type: string
+
+    FreelancerInput:
+      type: object
+      required: [name, skillCategory, location, rateGhs, bio, email, phone]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        skillCategory:
+          type: string
+          minLength: 1
+        location:
+          type: string
+          minLength: 1
+        rateGhs:
+          type: integer
+          minimum: 1
+        bio:
+          type: string
+          minLength: 10
+        portfolioImageUrl:
+          type: string
+        email:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+
+    FreelancerListResponse:
+      type: object
+      required: [freelancers]
+      properties:
+        freelancers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Freelancer"
+
+    FreelancerResponse:
+      type: object
+      required: [freelancer]
+      properties:
+        freelancer:
+          $ref: "#/components/schemas/Freelancer"

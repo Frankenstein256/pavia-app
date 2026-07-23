@@ -8,7 +8,12 @@
 
 export * from './authResponse';
 export * from './errorResponse';
+export * from './freelancer';
+export * from './freelancerInput';
+export * from './freelancerListResponse';
+export * from './freelancerResponse';
 export * from './healthStatus';
+export * from './listFreelancersParams';
 export * from './loginInput';
 export * from './messageResponse';
 export * from './signupInput';

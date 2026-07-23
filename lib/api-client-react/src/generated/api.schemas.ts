@@ -47,3 +47,47 @@ export interface MessageResponse {
   message: string;
 }
 
+export interface Freelancer {
+  id: number;
+  name: string;
+  skillCategory: string;
+  location: string;
+  rateGhs: number;
+  bio: string;
+  portfolioImageUrl?: string | null;
+  email: string;
+  phone: string;
+  createdAt: string;
+}
+
+export interface FreelancerInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  skillCategory: string;
+  /** @minLength 1 */
+  location: string;
+  /** @minimum 1 */
+  rateGhs: number;
+  /** @minLength 10 */
+  bio: string;
+  portfolioImageUrl?: string;
+  /** @minLength 1 */
+  email: string;
+  /** @minLength 1 */
+  phone: string;
+}
+
+export interface FreelancerListResponse {
+  freelancers: Freelancer[];
+}
+
+export interface FreelancerResponse {
+  freelancer: Freelancer;
+}
+
+export type ListFreelancersParams = {
+search?: string;
+category?: string;
+};
+
