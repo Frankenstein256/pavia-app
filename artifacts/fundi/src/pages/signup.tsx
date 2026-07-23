@@ -5,6 +5,9 @@ import { Eye, EyeOff, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSignup } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getGetMeQueryKey } from "@workspace/api-client-react";
 
 const PaviaLogo = () => (
   <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -21,6 +24,7 @@ const PaviaLogo = () => (
 
 export default function Signup() {
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({
@@ -31,7 +35,26 @@ export default function Signup() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  const signup = useSignup({
+    mutation: {
+      onSuccess: (data) => {
+        queryClient.setQueryData(getGetMeQueryKey(), data);
+        navigate("/dashboard");
+      },
+      onError: (err) => {
+        const message =
+          (err.data as { error?: string } | null)?.error ??
+          "Something went wrong. Please try again.";
+        if (message.toLowerCase().includes("email")) {
+          setErrors((e) => ({ ...e, email: message }));
+        } else {
+          setServerError(message);
+        }
+      },
+    },
+  });
 
   function validate() {
     const e: Record<string, string> = {};
@@ -47,19 +70,24 @@ export default function Signup() {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
     setErrors((err) => ({ ...err, [e.target.name]: "" }));
+    setServerError("");
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("pavia_user_name", form.fullName.trim().split(" ")[0]);
-      localStorage.setItem("pavia_user_full_name", form.fullName.trim());
-      navigate("/dashboard");
-    }, 900);
+    signup.mutate({
+      data: {
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.replace(/\s/g, ""),
+        password: form.password,
+      },
+    });
   }
+
+  const loading = signup.isPending;
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -110,6 +138,12 @@ export default function Signup() {
         >
           <h1 className="text-3xl font-bold font-display text-primary mb-1">Create your account</h1>
           <p className="text-muted-foreground mb-8">Free forever. No credit card needed.</p>
+
+          {serverError && (
+            <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-600 text-sm">
+              {serverError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             {/* Full Name */}
@@ -208,7 +242,7 @@ export default function Signup() {
               type="submit"
               data-testid="button-signup-submit"
               disabled={loading}
-              className="w-full h-13 bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full text-base h-12"
+              className="w-full bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full text-base h-12"
             >
               {loading ? "Creating your account…" : (
                 <>Create Account <ArrowRight className="ml-2 w-4 h-4" /></>

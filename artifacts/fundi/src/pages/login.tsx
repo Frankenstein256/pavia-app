@@ -5,6 +5,8 @@ import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLogin, getGetMeQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PaviaLogo = () => (
   <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -21,10 +23,26 @@ const PaviaLogo = () => (
 
 export default function Login() {
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  const login = useLogin({
+    mutation: {
+      onSuccess: (data) => {
+        queryClient.setQueryData(getGetMeQueryKey(), data);
+        navigate("/dashboard");
+      },
+      onError: (err) => {
+        const message =
+          (err.data as { error?: string } | null)?.error ??
+          "Invalid email or password.";
+        setServerError(message);
+      },
+    },
+  });
 
   function validate() {
     const e: Record<string, string> = {};
@@ -36,33 +54,17 @@ export default function Login() {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
     setErrors((err) => ({ ...err, [e.target.name]: "" }));
+    setServerError("");
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    
-    setLoading(true);
-
-    // Secure Login Check for your Ghana launch testers
-    setTimeout(() => {
-      const correctEmail = "frank@pavia.com";
-      const correctPassword = "PaviaGhana2026"; 
-
-      if (form.email.toLowerCase() === correctEmail && form.password === correctPassword) {
-        localStorage.setItem("pavia_user_name", "Frank");
-        setLoading(false);
-        navigate("/dashboard");
-      } else {
-        setLoading(false);
-        setErrors({
-          email: "Access Denied.",
-          password: "Wrong email or password. Please try again."
-        });
-      }
-    }, 1000);
+    login.mutate({ data: { email: form.email.trim(), password: form.password } });
   }
+
+  const loading = login.isPending;
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -100,6 +102,12 @@ export default function Login() {
         >
           <h1 className="text-3xl font-bold font-display text-primary mb-1">Log in to Pavia</h1>
           <p className="text-muted-foreground mb-8">Good to have you back.</p>
+
+          {serverError && (
+            <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-600 text-sm">
+              {serverError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             {/* Email */}

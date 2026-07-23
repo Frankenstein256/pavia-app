@@ -1,6 +1,6 @@
-# [Project name]
+# Pavia
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A financial super-app for young Ghanaians — savings goals, rent finance, gig work, and certified courses in one place.
 
 ## Run & Operate
 
@@ -22,15 +22,25 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/db/src/schema/users.ts` — users table (id, fullName, email, phone, passwordHash, createdAt)
+- `lib/api-spec/openapi.yaml` — single source of truth for all API contracts
+- `artifacts/api-server/src/routes/auth.ts` — signup, login, me, logout routes
+- `artifacts/api-server/src/lib/password.ts` — scrypt password hashing (Node built-in crypto)
+- `artifacts/fundi/src/hooks/use-auth.ts` — `useAuth()` and `useLogoutAction()` hooks
+- `artifacts/fundi/src/pages/` — signup, login, dashboard pages
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **Password hashing**: Node.js built-in `crypto.scrypt` — no native addon required; `salt:hash` format stored in DB.
+- **Sessions**: `express-session` with in-memory store; `SESSION_SECRET` from Replit secret; 7-day cookie.
+- **Auth state**: React Query + `useGetMe` — dashboard redirects to `/login` when unauthenticated; session cached in QueryClient on login/signup.
+- **CORS**: `credentials: true` + `origin: true` on the API; `credentials: "include"` added to custom fetch for all API calls.
+- **Zod schema naming**: Orval generates `SignupBody`/`LoginBody` (not `SignupInput`/`LoginInput`) — always check generated api.ts after codegen.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Auth**: signup with full name, email, Ghanaian phone number, password — stored in PostgreSQL. Login with email + password. Sessions persist 7 days. Dashboard redirects unauthenticated users to login.
+- **Save / Rent / Work / Learn**: landing pages with feature previews (backend coming later).
 
 ## User preferences
 
