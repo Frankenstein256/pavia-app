@@ -9,7 +9,6 @@ import * as zod from 'zod';
 
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -126,6 +125,66 @@ export const CreateFreelancerBody = zod.object({
   "portfolioImageUrl": zod.string().optional(),
   "email": zod.string().min(1),
   "phone": zod.string().min(1)
+})
+
+
+/**
+ * @summary List rental property listings
+ */
+export const ListPropertiesQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "location": zod.coerce.string().optional(),
+  "minPrice": zod.coerce.number().optional(),
+  "maxPrice": zod.coerce.number().optional(),
+  "bedrooms": zod.coerce.number().optional()
+})
+
+export const ListPropertiesResponse = zod.object({
+  "properties": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "location": zod.string(),
+  "monthlyRentGhs": zod.number(),
+  "bedrooms": zod.number(),
+  "bathrooms": zod.number(),
+  "amenities": zod.string(),
+  "landlordName": zod.string(),
+  "landlordContact": zod.string(),
+  "photoUrl": zod.string().nullish(),
+  "availableDate": zod.string(),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
+ * @summary List a rental property
+ */
+
+
+
+
+export const createPropertyBodyBedroomsMin = 0;
+
+
+
+
+
+
+
+export const CreatePropertyBody = zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().min(1),
+  "location": zod.string().min(1),
+  "monthlyRentGhs": zod.number().min(1),
+  "bedrooms": zod.number().min(createPropertyBodyBedroomsMin),
+  "bathrooms": zod.number().min(1),
+  "amenities": zod.string().optional(),
+  "landlordName": zod.string().min(1),
+  "landlordContact": zod.string().min(1),
+  "photoUrl": zod.string().optional(),
+  "availableDate": zod.string().min(1)
 })
 
 

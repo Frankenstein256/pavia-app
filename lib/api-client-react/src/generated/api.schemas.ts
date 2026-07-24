@@ -86,8 +86,63 @@ export interface FreelancerResponse {
   freelancer: Freelancer;
 }
 
+export interface Property {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  monthlyRentGhs: number;
+  bedrooms: number;
+  bathrooms: number;
+  amenities: string;
+  landlordName: string;
+  landlordContact: string;
+  photoUrl?: string | null;
+  availableDate: string;
+  createdAt: string;
+}
+
+export interface PropertyInput {
+  /** @minLength 1 */
+  title: string;
+  /** @minLength 1 */
+  description: string;
+  /** @minLength 1 */
+  location: string;
+  /** @minimum 1 */
+  monthlyRentGhs: number;
+  /** @minimum 0 */
+  bedrooms: number;
+  /** @minimum 1 */
+  bathrooms: number;
+  amenities?: string;
+  /** @minLength 1 */
+  landlordName: string;
+  /** @minLength 1 */
+  landlordContact: string;
+  photoUrl?: string;
+  /** @minLength 1 */
+  availableDate: string;
+}
+
+export interface PropertyListResponse {
+  properties: Property[];
+}
+
+export interface PropertyResponse {
+  property: Property;
+}
+
 export type ListFreelancersParams = {
 search?: string;
 category?: string;
+};
+
+export type ListPropertiesParams = {
+search?: string;
+location?: string;
+minPrice?: number;
+maxPrice?: number;
+bedrooms?: number;
 };
 

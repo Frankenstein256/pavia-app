@@ -1,110 +1,443 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import {
-  ArrowRight,
-  CheckCircle2,
-  ShieldCheck,
-  Clock,
-  Home as HomeIcon,
-  Banknote,
-  CalendarCheck,
-  UserCheck,
-  ChevronUp,
+  Search, MapPin, BedDouble, Bath, CalendarDays, ArrowRight,
+  X, Phone, Mail, Loader2, CheckCircle2, AlertCircle, SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { useListProperties, useCreateProperty } from "@workspace/api-client-react";
+import type { Property } from "@workspace/api-client-react";
 
-const HOW_IT_WORKS = [
-  {
-    icon: HomeIcon,
-    step: "01",
-    title: "Find your home",
-    desc: "Find your ideal rental property and agree on terms with your landlord as normal.",
-  },
-  {
-    icon: Banknote,
-    step: "02",
-    title: "Pavia pays upfront",
-    desc: "We pay your landlord the full advance — 1 or 2 years — directly and immediately.",
-  },
-  {
-    icon: CalendarCheck,
-    step: "03",
-    title: "You pay monthly",
-    desc: "Repay Pavia in simple, fixed monthly instalments in GHS. No surprises.",
-  },
+const LOCATIONS = ["All", "Accra", "Kumasi", "Tema", "Takoradi", "Tamale", "Cape Coast"];
+const BEDROOM_OPTIONS = ["Any", "1", "2", "3", "4+"];
+const PRICE_RANGES = [
+  { label: "Any price", min: undefined, max: undefined },
+  { label: "Under GHS 1,500", min: undefined, max: 1499 },
+  { label: "GHS 1,500 – 2,500", min: 1500, max: 2500 },
+  { label: "GHS 2,500 – 4,000", min: 2501, max: 4000 },
+  { label: "GHS 4,000+", min: 4001, max: undefined },
 ];
 
-const ELIGIBILITY = [
-  { icon: UserCheck, text: "Ghanaian resident aged 18 – 45" },
-  { icon: Banknote, text: "Verified income source (employed, freelance, or business)" },
-  { icon: ShieldCheck, text: "No active loan defaults" },
-  { icon: Clock, text: "Rental agreement of at least 12 months" },
-];
-
-const FAQS = [
-  {
-    q: "How quickly can Pavia pay my landlord?",
-    a: "Once your application is approved and your documents verified, we can pay your landlord within 48 hours.",
-  },
-  {
-    q: "Is there a minimum or maximum rent amount?",
-    a: "We currently support rent financing from GHS 500 to GHS 5,000 per month, covering most rental markets across Ghana.",
-  },
-  {
-    q: "What happens if I miss a monthly payment?",
-    a: "We offer a 7-day grace period. If you're struggling, reach out early — our team will work with you on a solution before any penalties apply.",
-  },
-  {
-    q: "Do I need a guarantor?",
-    a: "Not always. Depending on your income verification and profile, you may qualify without a guarantor.",
-  },
-];
+const FALLBACK_PHOTO =
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80";
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
+};
+const cardVariants = {
+  hidden: { y: 24, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: "spring" as const, stiffness: 90 } },
 };
 
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 90 } },
-};
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" });
+}
 
-function FaqItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
+/* ─── Book Viewing Modal ─────────────────────────────────────────────── */
+function BookViewingModal({
+  property,
+  onClose,
+}: {
+  property: Property | null;
+  onClose: () => void;
+}) {
   return (
-    <div className="border border-border rounded-2xl overflow-hidden">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left font-semibold text-primary hover:bg-primary/5 transition-colors"
-      >
-        {q}
-        {open ? <ChevronUp className="w-5 h-5 shrink-0 text-secondary" /> : <ChevronDown className="w-5 h-5 shrink-0 text-muted-foreground" />}
-      </button>
-      {open && (
-        <div className="px-6 pb-5 text-muted-foreground leading-relaxed text-sm border-t border-border pt-4">
-          {a}
-        </div>
-      )}
-    </div>
+    <Dialog open={!!property} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md rounded-3xl">
+        {property && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl text-primary">
+                Book a Viewing
+              </DialogTitle>
+              <DialogDescription>
+                Contact the landlord directly to arrange a time to visit.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              {property.photoUrl && (
+                <img
+                  src={property.photoUrl}
+                  alt={property.title}
+                  className="w-full h-36 object-cover rounded-2xl"
+                />
+              )}
+              <div>
+                <p className="font-bold font-display text-primary text-lg leading-tight">
+                  {property.title}
+                </p>
+                <p className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
+                  <MapPin className="w-4 h-4 text-secondary" />
+                  {property.location}
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-3 bg-muted/40 rounded-2xl p-4">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground font-medium mb-0.5">Rent/mo</p>
+                  <p className="font-bold text-primary text-sm">GHS {property.monthlyRentGhs.toLocaleString()}</p>
+                </div>
+                <div className="text-center border-x border-border">
+                  <p className="text-xs text-muted-foreground font-medium mb-0.5">Beds</p>
+                  <p className="font-bold text-primary text-sm">{property.bedrooms}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground font-medium mb-0.5">Baths</p>
+                  <p className="font-bold text-primary text-sm">{property.bathrooms}</p>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Landlord</p>
+                <p className="font-semibold text-primary">{property.landlordName}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <a
+                  href={`tel:${property.landlordContact}`}
+                  className="flex items-center justify-center gap-2 bg-primary text-secondary font-bold rounded-2xl py-3 hover:bg-primary/90 transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                  Call
+                </a>
+                <a
+                  href={`mailto:${property.landlordContact}`}
+                  className="flex items-center justify-center gap-2 border-2 border-primary text-primary font-bold rounded-2xl py-3 hover:bg-primary/5 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground text-center pb-1">
+                Contact: {property.landlordContact}
+              </p>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
+/* ─── List Property Modal ────────────────────────────────────────────── */
+const INITIAL_PROP_FORM = {
+  title: "",
+  description: "",
+  location: "",
+  monthlyRentGhs: "",
+  bedrooms: "",
+  bathrooms: "",
+  amenities: "",
+  landlordName: "",
+  landlordContact: "",
+  photoUrl: "",
+  availableDate: "",
+};
+
+function ListPropertyModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [form, setForm] = useState(INITIAL_PROP_FORM);
+  const [submitted, setSubmitted] = useState(false);
+  const mutation = useCreateProperty();
+
+  function handleClose() {
+    if (!mutation.isPending) {
+      onClose();
+      setTimeout(() => {
+        setForm(INITIAL_PROP_FORM);
+        setSubmitted(false);
+        mutation.reset();
+      }, 300);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const monthlyRentGhs = parseInt(form.monthlyRentGhs, 10);
+    const bedrooms = parseInt(form.bedrooms, 10);
+    const bathrooms = parseInt(form.bathrooms, 10);
+    if (isNaN(monthlyRentGhs) || isNaN(bedrooms) || isNaN(bathrooms)) return;
+
+    await mutation.mutateAsync({
+      data: {
+        title: form.title,
+        description: form.description,
+        location: form.location,
+        monthlyRentGhs,
+        bedrooms,
+        bathrooms,
+        amenities: form.amenities,
+        landlordName: form.landlordName,
+        landlordContact: form.landlordContact,
+        photoUrl: form.photoUrl || undefined,
+        availableDate: form.availableDate,
+      },
+    });
+    setSubmitted(true);
+  }
+
+  function f(
+    id: keyof typeof INITIAL_PROP_FORM,
+    label: string,
+    placeholder: string,
+    type = "text",
+    required = true,
+  ) {
+    return (
+      <div className="space-y-1.5">
+        <Label htmlFor={id} className="font-semibold text-sm text-primary">
+          {label}{!required && <span className="text-muted-foreground font-normal"> (optional)</span>}
+        </Label>
+        <Input
+          id={id}
+          type={type}
+          placeholder={placeholder}
+          value={form[id]}
+          onChange={(e) => setForm((prev) => ({ ...prev, [id]: e.target.value }))}
+          required={required}
+          disabled={mutation.isPending}
+          className="rounded-xl border-border focus:border-primary"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent className="sm:max-w-lg rounded-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl text-primary">List Your Property</DialogTitle>
+          <DialogDescription>
+            Add your rental listing to the Pavia marketplace. Tenants can find and contact you directly.
+          </DialogDescription>
+        </DialogHeader>
+
+        <AnimatePresence mode="wait">
+          {submitted ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center gap-4 py-8 text-center"
+            >
+              <CheckCircle2 className="w-16 h-16 text-secondary" strokeWidth={1.5} />
+              <h3 className="font-display text-xl font-bold text-primary">Your property is listed!</h3>
+              <p className="text-muted-foreground text-sm max-w-xs">
+                Your listing is now live on the marketplace. Interested tenants will contact you directly.
+              </p>
+              <Button
+                onClick={handleClose}
+                className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-8 mt-2"
+              >
+                Done
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.form
+              key="form"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onSubmit={handleSubmit}
+              className="space-y-4 pt-2"
+            >
+              {f("title", "Property Title", "e.g. 2-Bedroom Apartment in East Legon")}
+
+              <div className="space-y-1.5">
+                <Label htmlFor="description" className="font-semibold text-sm text-primary">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe the property — features, nearby landmarks, condition…"
+                  value={form.description}
+                  onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                  required
+                  rows={3}
+                  disabled={mutation.isPending}
+                  className="rounded-xl border-border focus:border-primary resize-none"
+                />
+              </div>
+
+              {f("location", "Location", "e.g. East Legon, Accra")}
+
+              <div className="space-y-1.5">
+                <Label htmlFor="monthlyRentGhs" className="font-semibold text-sm text-primary">
+                  Monthly Rent (GHS)
+                </Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">GHS</span>
+                  <Input
+                    id="monthlyRentGhs"
+                    type="number"
+                    min={1}
+                    placeholder="2500"
+                    value={form.monthlyRentGhs}
+                    onChange={(e) => setForm((p) => ({ ...p, monthlyRentGhs: e.target.value }))}
+                    required
+                    disabled={mutation.isPending}
+                    className="pl-12 rounded-xl border-border focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="bedrooms" className="font-semibold text-sm text-primary">Bedrooms</Label>
+                  <Input
+                    id="bedrooms"
+                    type="number"
+                    min={0}
+                    placeholder="2"
+                    value={form.bedrooms}
+                    onChange={(e) => setForm((p) => ({ ...p, bedrooms: e.target.value }))}
+                    required
+                    disabled={mutation.isPending}
+                    className="rounded-xl border-border focus:border-primary"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="bathrooms" className="font-semibold text-sm text-primary">Bathrooms</Label>
+                  <Input
+                    id="bathrooms"
+                    type="number"
+                    min={1}
+                    placeholder="1"
+                    value={form.bathrooms}
+                    onChange={(e) => setForm((p) => ({ ...p, bathrooms: e.target.value }))}
+                    required
+                    disabled={mutation.isPending}
+                    className="rounded-xl border-border focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="amenities" className="font-semibold text-sm text-primary">
+                  Amenities <span className="text-muted-foreground font-normal">(comma-separated)</span>
+                </Label>
+                <Input
+                  id="amenities"
+                  placeholder="e.g. WiFi, Parking, Security, Generator"
+                  value={form.amenities}
+                  onChange={(e) => setForm((p) => ({ ...p, amenities: e.target.value }))}
+                  disabled={mutation.isPending}
+                  className="rounded-xl border-border focus:border-primary"
+                />
+              </div>
+
+              {f("landlordName", "Your Name", "e.g. Kwame Boateng")}
+              {f("landlordContact", "Your Phone / Email", "0244123456 or you@example.com")}
+              {f("photoUrl", "Property Photo URL", "https://example.com/photo.jpg", "text", false)}
+
+              <div className="space-y-1.5">
+                <Label htmlFor="availableDate" className="font-semibold text-sm text-primary">Available From</Label>
+                <Input
+                  id="availableDate"
+                  type="date"
+                  value={form.availableDate}
+                  onChange={(e) => setForm((p) => ({ ...p, availableDate: e.target.value }))}
+                  required
+                  disabled={mutation.isPending}
+                  className="rounded-xl border-border focus:border-primary"
+                />
+              </div>
+
+              {mutation.isError && (
+                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>Something went wrong. Please check your details and try again.</span>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={mutation.isPending}
+                  className="flex-1 rounded-full font-semibold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={mutation.isPending}
+                  className="flex-1 bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full"
+                >
+                  {mutation.isPending ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting…</>
+                  ) : (
+                    "List Property"
+                  )}
+                </Button>
+              </div>
+            </motion.form>
+          )}
+        </AnimatePresence>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ─── Main Page ──────────────────────────────────────────────────────── */
 export default function Rent() {
   const [, navigate] = useLocation();
-  const [monthlyRent, setMonthlyRent] = useState(1500);
-  const [months, setMonths] = useState(12);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [locationFilter, setLocationFilter] = useState("All");
+  const [bedroomsFilter, setBedroomsFilter] = useState("Any");
+  const [priceRange, setPriceRange] = useState(0); // index into PRICE_RANGES
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [bookProperty, setBookProperty] = useState<Property | null>(null);
+  const [listOpen, setListOpen] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const totalAdvance = monthlyRent * months;
-  const serviceFee = Math.round(totalAdvance * 0.05);
-  const totalRepayable = totalAdvance + serviceFee;
-  const monthlyRepayment = Math.round(totalRepayable / months);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [search]);
+
+  const selectedPrice = PRICE_RANGES[priceRange];
+  const queryParams = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(locationFilter !== "All" ? { location: locationFilter } : {}),
+    ...(selectedPrice.min !== undefined ? { minPrice: selectedPrice.min } : {}),
+    ...(selectedPrice.max !== undefined ? { maxPrice: selectedPrice.max } : {}),
+    ...(bedroomsFilter !== "Any"
+      ? { bedrooms: bedroomsFilter === "4+" ? 4 : parseInt(bedroomsFilter) }
+      : {}),
+  };
+
+  const { data, isLoading, isError, refetch } = useListProperties(queryParams);
+  const properties = data?.properties ?? [];
+
+  const hasActiveFilters =
+    locationFilter !== "All" || bedroomsFilter !== "Any" || priceRange !== 0;
+
+  function clearFilters() {
+    setLocationFilter("All");
+    setBedroomsFilter("Any");
+    setPriceRange(0);
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
+      {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -129,283 +462,337 @@ export default function Rent() {
           <div className="flex items-center gap-3">
             <Link href="/login" className="font-semibold text-primary hover:text-secondary transition-colors hidden md:block text-sm">Log In</Link>
             <Button
-              data-testid="button-apply-rent-nav"
               onClick={() => navigate("/signup")}
               className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
             >
-              Apply Now
+              Get Started
             </Button>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="pt-40 pb-24 px-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-secondary/10 rounded-full blur-[120px] -z-10 translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10 -translate-x-1/3" />
-
-        <div className="container mx-auto max-w-5xl">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="text-center"
-          >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 text-primary font-semibold text-sm mb-6">
+      <section className="pt-40 pb-20 px-6 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px] -z-10 -translate-x-1/3 -translate-y-1/4" />
+        <div className="container mx-auto max-w-4xl text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 text-primary font-semibold text-sm mb-6">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              Rent Finance — available across Ghana
-            </motion.div>
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold font-display leading-[1.1] text-primary mb-6">
-              Stop paying<br />
-              <span className="text-secondary">2 years upfront.</span>
-            </motion.h1>
-            <motion.p variants={itemVariants} className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              Pavia pays your landlord the full advance. You pay us back in simple monthly instalments. Move into your home without breaking your savings.
-            </motion.p>
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button
-                data-testid="button-apply-rent-hero"
-                size="lg"
-                onClick={() => navigate("/signup")}
-                className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-14 px-8 text-lg"
-              >
-                Apply for Rent Finance
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full h-14 px-8 text-lg font-bold border-primary text-primary hover:bg-primary/5"
-              >
-                See how it works
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Quick stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-20 grid grid-cols-3 gap-6 max-w-2xl mx-auto"
-          >
-            {[
-              { value: "48 hrs", label: "Landlord paid in" },
-              { value: "GHS 0", label: "Upfront from you" },
-              { value: "Monthly", label: "Repayment schedule" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center p-6 bg-card rounded-2xl border border-border">
-                <p className="text-3xl font-bold font-display text-secondary mb-1">{stat.value}</p>
-                <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-24 px-6 bg-primary/3">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold font-display text-primary mb-4">Simple. Fast. Fair.</h2>
-            <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-              We handle the landlord. You keep your cash.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-10 relative">
-            <div className="hidden md:block absolute top-10 left-[calc(16.666%+2rem)] right-[calc(16.666%+2rem)] h-px bg-border z-0" />
-            {HOW_IT_WORKS.map((step, i) => {
-              const Icon = step.icon;
-              return (
-                <motion.div
-                  key={step.step}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.15 }}
-                  className="relative z-10 text-center"
-                >
-                  <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Icon className="w-9 h-9 text-secondary" />
-                  </div>
-                  <p className="text-secondary font-bold text-sm mb-2 tracking-widest uppercase">Step {step.step}</p>
-                  <h3 className="text-xl font-bold font-display text-primary mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-sm">{step.desc}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Repayment Calculator */}
-      <section className="py-28 px-6">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold font-display text-primary mb-4">Calculate your repayment.</h2>
-            <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-              See exactly what your monthly payments would look like before you apply.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            {/* Inputs */}
-            <div className="bg-card border border-border rounded-3xl p-8 space-y-8">
-              <div>
-                <div className="flex justify-between mb-3">
-                  <label className="font-semibold text-primary">Monthly Rent</label>
-                  <span className="font-bold font-display text-secondary text-lg">GHS {monthlyRent.toLocaleString()}</span>
-                </div>
-                <input
-                  data-testid="slider-monthly-rent"
-                  type="range"
-                  min={500}
-                  max={5000}
-                  step={100}
-                  value={monthlyRent}
-                  onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                  className="w-full accent-primary h-2 cursor-pointer"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>GHS 500</span><span>GHS 5,000</span>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between mb-3">
-                  <label className="font-semibold text-primary">Advance Period</label>
-                  <span className="font-bold font-display text-secondary text-lg">{months} months</span>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[6, 12, 24].map((m) => (
-                    <button
-                      key={m}
-                      data-testid={`button-months-${m}`}
-                      onClick={() => setMonths(m)}
-                      className={`py-3 rounded-xl font-bold text-sm transition-all ${
-                        months === m
-                          ? "bg-primary text-secondary shadow-md"
-                          : "bg-muted border border-border text-foreground hover:border-primary"
-                      }`}
-                    >
-                      {m} months
-                    </button>
-                  ))}
-                </div>
-              </div>
+              Ghana's Rental Marketplace
             </div>
+            <h1 className="text-5xl md:text-7xl font-bold font-display leading-[1.1] text-primary mb-6">
+              Find Your Home.<br />
+              <span className="text-secondary">Pay Monthly.</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+              Browse verified rental listings across Ghana. Connect directly with landlords, pay in GHS, and move in on your terms.
+            </p>
+          </motion.div>
 
-            {/* Results */}
-            <div className="bg-primary rounded-3xl p-8 text-primary-foreground space-y-5">
-              <p className="text-secondary font-bold text-sm uppercase tracking-widest mb-4">Your repayment summary</p>
+          {/* Search bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="relative max-w-2xl mx-auto"
+          >
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Search by property name, location, or landlord…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-16 pl-14 pr-12 rounded-2xl text-base border-border shadow-md focus:border-primary"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </motion.div>
+        </div>
+      </section>
 
-              {[
-                { label: "Total advance paid to landlord", value: `GHS ${totalAdvance.toLocaleString()}` },
-                { label: "Pavia service fee (5%)", value: `GHS ${serviceFee.toLocaleString()}` },
-                { label: "Total repayable", value: `GHS ${totalRepayable.toLocaleString()}` },
-              ].map((row, i) => (
-                <div key={row.label} className={`flex justify-between items-center py-3 ${i < 2 ? "border-b border-white/10" : ""}`}>
-                  <span className="text-primary-foreground/70 text-sm">{row.label}</span>
-                  <span className="font-bold font-display text-primary-foreground">{row.value}</span>
+      {/* Listings */}
+      <section className="pb-32 px-6">
+        <div className="container mx-auto max-w-6xl">
+
+          {/* Filter bar */}
+          <div className="flex flex-wrap items-center gap-3 mb-8">
+            <button
+              onClick={() => setFiltersOpen((o) => !o)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm border transition-all ${
+                filtersOpen || hasActiveFilters
+                  ? "bg-primary text-secondary border-primary shadow-md"
+                  : "bg-card border-border text-foreground hover:border-primary hover:text-primary"
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-1 bg-secondary text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                  {[locationFilter !== "All", bedroomsFilter !== "Any", priceRange !== 0].filter(Boolean).length}
+                </span>
+              )}
+              <ChevronDown className={`w-4 h-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+                Clear filters
+              </button>
+            )}
+
+            <Button
+              onClick={() => setListOpen(true)}
+              className="ml-auto bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-6"
+            >
+              List Your Property
+              <ArrowRight className="ml-1.5 w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Expanded filters */}
+          <AnimatePresence>
+            {filtersOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="grid sm:grid-cols-3 gap-4 bg-card border border-border rounded-2xl p-5 mb-8">
+                  {/* Location */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Location</p>
+                    <div className="flex flex-wrap gap-2">
+                      {LOCATIONS.map((loc) => (
+                        <button
+                          key={loc}
+                          onClick={() => setLocationFilter(loc)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                            locationFilter === loc
+                              ? "bg-primary text-secondary"
+                              : "bg-background border border-border hover:border-primary hover:text-primary"
+                          }`}
+                        >
+                          {loc}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price range */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Price / month</p>
+                    <div className="flex flex-wrap gap-2">
+                      {PRICE_RANGES.map((range, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setPriceRange(i)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                            priceRange === i
+                              ? "bg-primary text-secondary"
+                              : "bg-background border border-border hover:border-primary hover:text-primary"
+                          }`}
+                        >
+                          {range.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bedrooms */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Bedrooms</p>
+                    <div className="flex flex-wrap gap-2">
+                      {BEDROOM_OPTIONS.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => setBedroomsFilter(opt)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                            bedroomsFilter === opt
+                              ? "bg-primary text-secondary"
+                              : "bg-background border border-border hover:border-primary hover:text-primary"
+                          }`}
+                        >
+                          {opt === "Any" ? "Any" : `${opt} bed${opt !== "1" ? "s" : ""}`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Count */}
+          <p className="text-sm text-muted-foreground mb-8 font-medium">
+            {isLoading
+              ? "Loading listings…"
+              : `${properties.length} propert${properties.length !== 1 ? "ies" : "y"} found`}
+          </p>
+
+          {/* Error */}
+          {isError && (
+            <div className="text-center py-20">
+              <p className="text-xl font-bold text-primary mb-2">Couldn't load listings</p>
+              <p className="text-muted-foreground mb-6">Check your connection and try again.</p>
+              <Button onClick={() => refetch()} variant="outline" className="rounded-full">Retry</Button>
+            </div>
+          )}
+
+          {/* Skeleton */}
+          {isLoading && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-card rounded-[1.75rem] border border-border overflow-hidden animate-pulse">
+                  <div className="h-52 bg-muted" />
+                  <div className="p-6 space-y-3">
+                    <div className="h-5 bg-muted rounded w-3/4" />
+                    <div className="h-3 bg-muted rounded w-1/2" />
+                    <div className="h-3 bg-muted rounded" />
+                    <div className="h-3 bg-muted rounded w-5/6" />
+                  </div>
                 </div>
               ))}
-
-              <div className="mt-4 bg-secondary/20 rounded-2xl p-5 text-center">
-                <p className="text-primary-foreground/70 text-sm mb-1">Your monthly repayment</p>
-                <p className="text-4xl font-bold font-display text-secondary">GHS {monthlyRepayment.toLocaleString()}</p>
-                <p className="text-primary-foreground/60 text-xs mt-1">for {months} months</p>
-              </div>
-
-              <Button
-                data-testid="button-apply-rent-calculator"
-                onClick={() => navigate("/signup")}
-                className="w-full bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-13 mt-2"
-              >
-                Apply for Rent Finance
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
             </div>
-          </div>
-        </div>
-      </section>
+          )}
 
-      {/* Eligibility */}
-      <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary -z-20" />
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold font-display text-secondary mb-4">Do you qualify?</h2>
-              <p className="text-primary-foreground/80 text-lg leading-relaxed mb-8">
-                We've kept eligibility simple. If you have a steady income and a rental agreement, you're most of the way there.
-              </p>
-              <Button
-                data-testid="button-apply-rent-eligibility"
-                size="lg"
-                onClick={() => navigate("/signup")}
-                className="bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-14 px-8 text-lg"
-              >
-                Check My Eligibility
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+          {/* Empty */}
+          {!isLoading && !isError && properties.length === 0 && (
+            <div className="text-center py-24">
+              <p className="text-2xl font-bold font-display text-primary mb-2">No listings found</p>
+              <p className="text-muted-foreground mb-6">Try adjusting your filters or clearing your search.</p>
+              {hasActiveFilters && (
+                <Button onClick={clearFilters} variant="outline" className="rounded-full">
+                  Clear filters
+                </Button>
+              )}
             </div>
-            <div className="space-y-4">
-              {ELIGIBILITY.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <motion.div
-                    key={item.text}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-4 bg-white/10 rounded-2xl px-6 py-4 border border-secondary/20"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5 text-secondary" />
+          )}
+
+          {/* Cards */}
+          {!isLoading && !isError && properties.length > 0 && (
+            <motion.div
+              key={JSON.stringify(queryParams)}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {properties.map((property) => (
+                <motion.div
+                  key={property.id}
+                  variants={cardVariants}
+                  className="bg-card rounded-[1.75rem] border border-border overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                >
+                  {/* Photo */}
+                  <div className="relative h-52 overflow-hidden shrink-0">
+                    <img
+                      src={property.photoUrl ?? FALLBACK_PHOTO}
+                      alt={property.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute bottom-3 left-3">
+                      <span className="bg-primary text-secondary font-bold text-sm px-3 py-1 rounded-full">
+                        GHS {property.monthlyRentGhs.toLocaleString()}<span className="font-normal text-xs">/mo</span>
+                      </span>
                     </div>
-                    <span className="text-primary-foreground font-medium">{item.text}</span>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="font-bold font-display text-primary text-lg leading-tight mb-1">
+                      {property.title}
+                    </h3>
+                    <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+                      <MapPin className="w-4 h-4 text-secondary shrink-0" />
+                      {property.location}
+                    </p>
+
+                    {/* Stats row */}
+                    <div className="flex items-center gap-4 text-sm font-semibold text-primary mb-3">
+                      <span className="flex items-center gap-1.5">
+                        <BedDouble className="w-4 h-4 text-secondary" />
+                        {property.bedrooms} bed{property.bedrooms !== 1 ? "s" : ""}
+                      </span>
+                      <span className="text-border">·</span>
+                      <span className="flex items-center gap-1.5">
+                        <Bath className="w-4 h-4 text-secondary" />
+                        {property.bathrooms} bath{property.bathrooms !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
+                      {property.description}
+                    </p>
+
+                    {/* Amenities */}
+                    {property.amenities && (
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {property.amenities.split(",").slice(0, 3).map((a) => (
+                          <span
+                            key={a}
+                            className="text-xs px-2.5 py-1 rounded-full bg-secondary/15 text-primary font-medium"
+                          >
+                            {a.trim()}
+                          </span>
+                        ))}
+                        {property.amenities.split(",").length > 3 && (
+                          <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground font-medium">
+                            +{property.amenities.split(",").length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-auto pt-4 border-t border-border flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Landlord</p>
+                        <p className="text-sm font-semibold text-primary">{property.landlordName}</p>
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                          <CalendarDays className="w-3.5 h-3.5 text-secondary" />
+                          Available {formatDate(property.availableDate)}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => setBookProperty(property)}
+                        className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full px-5 shrink-0"
+                      >
+                        Book Viewing
+                        <ArrowRight className="ml-1.5 w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-24 px-6">
-        <div className="container mx-auto max-w-3xl">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl font-bold font-display text-primary mb-4">Common questions.</h2>
-            <p className="text-muted-foreground text-lg">Everything you need to know before you apply.</p>
-          </div>
-          <div className="space-y-4">
-            {FAQS.map((faq) => (
-              <FaqItem key={faq.q} q={faq.q} a={faq.a} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-28 px-6 relative overflow-hidden bg-background">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-secondary/10 rounded-full blur-[100px] -z-10" />
-        <div className="container mx-auto max-w-3xl text-center">
-          <h2 className="text-5xl md:text-6xl font-bold font-display text-primary mb-6">
-            Move in without<br />
-            <span className="text-secondary">emptying your account.</span>
-          </h2>
-          <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-            Join the waitlist and be among the first to access Pavia Rent Finance.
+      {/* CTA Banner */}
+      <section className="py-20 px-6 bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, hsl(var(--secondary)) 0%, transparent 60%)" }} />
+        <div className="container mx-auto max-w-4xl text-center relative">
+          <h2 className="text-4xl md:text-5xl font-bold font-display text-secondary mb-4">Have a property to let?</h2>
+          <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
+            List your rental on the Pavia marketplace and reach thousands of verified tenants across Ghana — for free.
           </p>
           <Button
-            data-testid="button-apply-rent-cta"
             size="lg"
-            onClick={() => navigate("/signup")}
-            className="bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full h-16 px-12 text-xl"
+            onClick={() => setListOpen(true)}
+            className="bg-secondary text-primary hover:bg-secondary/90 font-bold rounded-full h-14 px-10 text-lg"
           >
-            Apply for Rent Finance
+            List Your Property
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
@@ -422,6 +809,10 @@ export default function Rent() {
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <BookViewingModal property={bookProperty} onClose={() => setBookProperty(null)} />
+      <ListPropertyModal open={listOpen} onClose={() => setListOpen(false)} />
     </div>
   );
 }

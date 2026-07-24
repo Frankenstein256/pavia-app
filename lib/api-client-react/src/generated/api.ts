@@ -27,8 +27,12 @@ import type {
   FreelancerResponse,
   HealthStatus,
   ListFreelancersParams,
+  ListPropertiesParams,
   LoginInput,
   MessageResponse,
+  PropertyInput,
+  PropertyListResponse,
+  PropertyResponse,
   SignupInput
 } from './api.schemas';
 
@@ -53,7 +57,6 @@ export const getHealthCheckUrl = () => {
 }
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus> => {
@@ -564,5 +567,160 @@ export const useCreateFreelancer = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getCreateFreelancerMutationOptions(options));
+    }
+
+export const getListPropertiesUrl = (params?: ListPropertiesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/properties?${stringifiedParams}` : `/api/properties`
+}
+
+/**
+ * @summary List rental property listings
+ */
+export const listProperties = async (params?: ListPropertiesParams, options?: RequestInit): Promise<PropertyListResponse> => {
+
+  return customFetch<PropertyListResponse>(getListPropertiesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPropertiesQueryKey = (params?: ListPropertiesParams,) => {
+    return [
+    `/api/properties`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListPropertiesQueryOptions = <TData = Awaited<ReturnType<typeof listProperties>>, TError = ErrorType<unknown>>(params?: ListPropertiesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProperties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPropertiesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProperties>>> = ({ signal }) => listProperties(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProperties>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPropertiesQueryResult = NonNullable<Awaited<ReturnType<typeof listProperties>>>
+export type ListPropertiesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List rental property listings
+ */
+
+export function useListProperties<TData = Awaited<ReturnType<typeof listProperties>>, TError = ErrorType<unknown>>(
+ params?: ListPropertiesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProperties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPropertiesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreatePropertyUrl = () => {
+
+
+
+
+  return `/api/properties`
+}
+
+/**
+ * @summary List a rental property
+ */
+export const createProperty = async (propertyInput: PropertyInput, options?: RequestInit): Promise<PropertyResponse> => {
+
+  return customFetch<PropertyResponse>(getCreatePropertyUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      propertyInput,)
+  }
+);}
+
+
+
+
+export const getCreatePropertyMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProperty>>, TError,{data: BodyType<PropertyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProperty>>, TError,{data: BodyType<PropertyInput>}, TContext> => {
+
+const mutationKey = ['createProperty'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProperty>>, {data: BodyType<PropertyInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createProperty(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePropertyMutationResult = NonNullable<Awaited<ReturnType<typeof createProperty>>>
+    export type CreatePropertyMutationBody = BodyType<PropertyInput>
+    export type CreatePropertyMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary List a rental property
+ */
+export const useCreateProperty = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProperty>>, TError,{data: BodyType<PropertyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createProperty>>,
+        TError,
+        {data: BodyType<PropertyInput>},
+        TContext
+      > => {
+      return useMutation(getCreatePropertyMutationOptions(options));
     }
 

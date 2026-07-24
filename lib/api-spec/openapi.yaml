@@ -14,13 +14,14 @@ tags:
     description: Authentication operations
   - name: freelancers
     description: Freelancer marketplace operations
+  - name: properties
+    description: Rental property marketplace operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -140,7 +141,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FreelancerListResponse"
-
     post:
       operationId: createFreelancer
       tags: [freelancers]
@@ -158,6 +158,68 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FreelancerResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /properties:
+    get:
+      operationId: listProperties
+      tags: [properties]
+      summary: List rental property listings
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: maxPrice
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: bedrooms
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyListResponse"
+    post:
+      operationId: createProperty
+      tags: [properties]
+      summary: List a rental property
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PropertyInput"
+      responses:
+        "201":
+          description: Property listing created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyResponse"
         "400":
           description: Invalid input
           content:
@@ -308,3 +370,87 @@ components:
       properties:
         freelancer:
           $ref: "#/components/schemas/Freelancer"
+
+    Property:
+      type: object
+      required: [id, title, description, location, monthlyRentGhs, bedrooms, bathrooms, amenities, landlordName, landlordContact, availableDate, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        monthlyRentGhs:
+          type: integer
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        amenities:
+          type: string
+        landlordName:
+          type: string
+        landlordContact:
+          type: string
+        photoUrl:
+          type: string
+          nullable: true
+        availableDate:
+          type: string
+        createdAt:
+          type: string
+
+    PropertyInput:
+      type: object
+      required: [title, description, location, monthlyRentGhs, bedrooms, bathrooms, landlordName, landlordContact, availableDate]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        location:
+          type: string
+          minLength: 1
+        monthlyRentGhs:
+          type: integer
+          minimum: 1
+        bedrooms:
+          type: integer
+          minimum: 0
+        bathrooms:
+          type: integer
+          minimum: 1
+        amenities:
+          type: string
+        landlordName:
+          type: string
+          minLength: 1
+        landlordContact:
+          type: string
+          minLength: 1
+        photoUrl:
+          type: string
+        availableDate:
+          type: string
+          minLength: 1
+
+    PropertyListResponse:
+      type: object
+      required: [properties]
+      properties:
+        properties:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+
+    PropertyResponse:
+      type: object
+      required: [property]
+      properties:
+        property:
+          $ref: "#/components/schemas/Property"

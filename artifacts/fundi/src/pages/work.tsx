@@ -135,6 +135,7 @@ function ListSkillsModal({
   onClose: () => void;
 }) {
   const [form, setForm] = useState(INITIAL_FORM);
+  const [customSkill, setCustomSkill] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const mutation = useCreateFreelancer();
 
@@ -143,6 +144,7 @@ function ListSkillsModal({
       onClose();
       setTimeout(() => {
         setForm(INITIAL_FORM);
+        setCustomSkill("");
         setSubmitted(false);
         mutation.reset();
       }, 300);
@@ -153,10 +155,13 @@ function ListSkillsModal({
     e.preventDefault();
     const rate = parseInt(form.rateGhs, 10);
     if (isNaN(rate) || rate <= 0) return;
+    const resolvedCategory =
+      form.skillCategory === "Other" ? customSkill.trim() : form.skillCategory;
+    if (!resolvedCategory) return;
     await mutation.mutateAsync({
       data: {
         name: form.name,
-        skillCategory: form.skillCategory,
+        skillCategory: resolvedCategory,
         location: form.location,
         rateGhs: rate,
         bio: form.bio,
@@ -241,7 +246,10 @@ function ListSkillsModal({
                   id="skillCategory"
                   required
                   value={form.skillCategory}
-                  onChange={(e) => setForm((f) => ({ ...f, skillCategory: e.target.value }))}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, skillCategory: e.target.value }));
+                    if (e.target.value !== "Other") setCustomSkill("");
+                  }}
                   disabled={mutation.isPending}
                   className="w-full h-10 rounded-xl border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-50"
                 >
@@ -249,7 +257,19 @@ function ListSkillsModal({
                   {CATEGORIES.filter((c) => c !== "All Skills").map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
+                  <option value="Other">Other (specify below)</option>
                 </select>
+                {form.skillCategory === "Other" && (
+                  <Input
+                    placeholder="e.g. Copywriting, Social Media Management…"
+                    value={customSkill}
+                    onChange={(e) => setCustomSkill(e.target.value)}
+                    required
+                    minLength={2}
+                    disabled={mutation.isPending}
+                    className="rounded-xl border-border focus:border-primary"
+                  />
+                )}
               </div>
 
               {field("location", "Location", "e.g. Accra, Kumasi, Remote")}
