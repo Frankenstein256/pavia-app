@@ -17,8 +17,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useListProperties, useCreateProperty } from "@workspace/api-client-react";
-import type { Property } from "@workspace/api-client-react";
+import { useListProperties, useCreateProperty } from "@/api-client";
+import type { Property } from "@/api-client";
 
 const LOCATIONS = ["All", "Accra", "Kumasi", "Tema", "Takoradi", "Tamale", "Cape Coast"];
 const BEDROOM_OPTIONS = ["Any", "1", "2", "3", "4+"];

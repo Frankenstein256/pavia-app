@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetMe, getGetMeQueryKey, useLogout } from "@workspace/api-client-react";
+import { useGetMe, getGetMeQueryKey, useLogout } from "@/api-client";
 import { useLocation } from "wouter";
 
 export function useAuth() {

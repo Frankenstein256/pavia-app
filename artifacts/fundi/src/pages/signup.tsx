@@ -5,9 +5,9 @@ import { Eye, EyeOff, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSignup } from "@workspace/api-client-react";
+import { useSignup } from "@/api-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetMeQueryKey } from "@workspace/api-client-react";
+import { getGetMeQueryKey } from "@/api-client";
 
 const PaviaLogo = () => (
   <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">

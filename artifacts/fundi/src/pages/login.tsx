@@ -5,7 +5,7 @@ import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLogin, getGetMeQueryKey } from "@workspace/api-client-react";
+import { useLogin, getGetMeQueryKey } from "@/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 
 const PaviaLogo = () => (
@@ -108,93 +108,6 @@ export default function Login() {
               {serverError}
             </div>
           )}
-
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            {/* Email */}
-            <div>
-              <Label htmlFor="email" className="text-sm font-semibold text-primary mb-1.5 block">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="abena@example.com"
-                value={form.email}
-                onChange={handleChange}
-                className={`h-12 rounded-xl border-border focus-visible:ring-primary ${errors.email ? "border-red-400" : ""}`}
-              />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-            </div>
-
-            {/* Password */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <Label htmlFor="password" className="text-sm font-semibold text-primary">Password</Label>
-                <a href="#" className="text-xs font-semibold text-secondary hover:text-secondary/80 transition-colors">
-                  Forgot password?
-                </a>
-              </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Your password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className={`h-12 rounded-xl border-border focus-visible:ring-primary pr-11 ${errors.password ? "border-red-400" : ""}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-            </div>
-
-            <Button
-              type="submit"
-              data-testid="button-login-submit"
-              disabled={loading}
-              className="w-full bg-primary text-secondary hover:bg-primary/90 font-bold rounded-full text-base h-12"
-            >
-              {loading ? "Logging in…" : (
-                <>Log In <ArrowRight className="ml-2 w-4 h-4" /></>
-              )}
-            </Button>
-          </form>
-
-          <p className="text-center text-muted-foreground text-sm mt-6">
-            Don't have an account?{" "}
-            <Link href="/signup" className="text-primary font-semibold hover:text-secondary transition-colors">
-              Create one free
-            </Link>
-          </p>
-        </motion.div>
-      </div>
-    </div>
-  );
-}    <p className="text-primary-foreground/30 text-sm relative z-10">© {new Date().getFullYear()} Pavia Financial Technologies</p>
-      </div>
-
-      {/* Right panel – form */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-        {/* Mobile logo */}
-        <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-          <PaviaLogo />
-          <span className="font-display font-bold text-2xl text-primary tracking-tight">Pavia</span>
-        </Link>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full max-w-md"
-        >
-          <h1 className="text-3xl font-bold font-display text-primary mb-1">Log in to Pavia</h1>
-          <p className="text-muted-foreground mb-8">Good to have you back.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             {/* Email */}

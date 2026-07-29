@@ -7,8 +7,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useListCourses } from "@workspace/api-client-react";
-import type { CourseListItem } from "@workspace/api-client-react";
+import { useListCourses } from "@/api-client";
+import type { CourseListItem } from "@/api-client";
 
 const CATEGORIES = ["All", "Finance", "Marketing", "Business", "Design", "Real Estate"];
 

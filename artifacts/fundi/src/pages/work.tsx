@@ -17,8 +17,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useListFreelancers, useCreateFreelancer } from "@workspace/api-client-react";
-import type { Freelancer } from "@workspace/api-client-react";
+import { useListFreelancers, useCreateFreelancer } from "@/api-client";
+import type { Freelancer } from "@/api-client";
 
 const CATEGORIES = [
   "All Skills",

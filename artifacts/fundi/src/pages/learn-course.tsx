@@ -4,9 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getCourse, getCourseProgress, updateCourseProgress,
   submitQuiz, claimCertificate,
-} from "@workspace/api-client-react";
-import type { CourseDetail, Lesson, QuizQuestion } from "@workspace/api-client-react";
-import { useGetMe } from "@workspace/api-client-react";
+} from "@/api-client";
+import type { CourseDetail, Lesson, QuizQuestion } from "@/api-client";
+import { useGetMe } from "@/api-client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2, ChevronLeft, ChevronRight, BookOpen, Award,
