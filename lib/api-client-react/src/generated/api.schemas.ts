@@ -133,6 +133,123 @@ export interface PropertyResponse {
   property: Property;
 }
 
+export interface CourseListItem {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  level: string;
+  durationHours: number;
+  instructor: string;
+  coverImageUrl?: string | null;
+  certificatePriceGhs: number;
+  lessonCount: number;
+  createdAt: string;
+}
+
+export interface Lesson {
+  id: number;
+  courseId: number;
+  orderNum: number;
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface QuizQuestion {
+  id: number;
+  courseId: number;
+  orderNum: number;
+  question: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+}
+
+export interface CourseDetail {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  level: string;
+  durationHours: number;
+  instructor: string;
+  coverImageUrl?: string | null;
+  certificatePriceGhs: number;
+  lessonCount: number;
+  createdAt: string;
+  lessons: Lesson[];
+  quizQuestions: QuizQuestion[];
+}
+
+export interface CourseProgress {
+  id: number;
+  userId: number;
+  courseId: number;
+  completedLessonIds: string;
+  quizScore?: number | null;
+  quizPassed: boolean;
+  certificatePurchased: boolean;
+  certificateName?: string | null;
+  certificateId?: string | null;
+  updatedAt: string;
+}
+
+export interface UpdateProgressInput {
+  completedLessonIds: string;
+}
+
+export interface QuizAnswer {
+  questionId: number;
+  answer: string;
+}
+
+export interface QuizSubmissionInput {
+  answers: QuizAnswer[];
+}
+
+export interface QuizResult {
+  score: number;
+  total: number;
+  passed: boolean;
+}
+
+export interface ClaimCertificateInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  paymentReference: string;
+}
+
+export interface CertificateData {
+  certificateId: string;
+  courseTitle: string;
+  recipientName: string;
+  instructor: string;
+  issuedAt: string;
+}
+
+export interface CourseListResponse {
+  courses: CourseListItem[];
+}
+
+export interface CourseDetailResponse {
+  course: CourseDetail;
+}
+
+export interface CourseProgressResponse {
+  progress: CourseProgress | null;
+}
+
+export interface QuizResultResponse {
+  result: QuizResult;
+}
+
+export interface CertificateResponse {
+  certificate: CertificateData;
+}
+
 export type ListFreelancersParams = {
 search?: string;
 category?: string;

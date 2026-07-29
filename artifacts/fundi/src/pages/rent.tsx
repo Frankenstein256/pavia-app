@@ -24,10 +24,15 @@ const LOCATIONS = ["All", "Accra", "Kumasi", "Tema", "Takoradi", "Tamale", "Cape
 const BEDROOM_OPTIONS = ["Any", "1", "2", "3", "4+"];
 const PRICE_RANGES = [
   { label: "Any price", min: undefined, max: undefined },
-  { label: "Under GHS 1,500", min: undefined, max: 1499 },
-  { label: "GHS 1,500 – 2,500", min: 1500, max: 2500 },
-  { label: "GHS 2,500 – 4,000", min: 2501, max: 4000 },
-  { label: "GHS 4,000+", min: 4001, max: undefined },
+  { label: "Under GHS 250", min: undefined, max: 249 },
+  { label: "GHS 250 – 300", min: 250, max: 300 },
+  { label: "GHS 300 – 400", min: 301, max: 400 },
+  { label: "GHS 400 – 500", min: 401, max: 500 },
+  { label: "GHS 500 – 800", min: 501, max: 800 },
+  { label: "GHS 800 – 1,000", min: 801, max: 1000 },
+  { label: "GHS 1,000 – 1,500", min: 1001, max: 1500 },
+  { label: "GHS 1,500 – 2,500", min: 1501, max: 2500 },
+  { label: "GHS 2,500+", min: 2501, max: undefined },
 ];
 
 const FALLBACK_PHOTO =

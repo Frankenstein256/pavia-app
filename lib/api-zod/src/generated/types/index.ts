@@ -7,12 +7,22 @@
  */
 
 export * from './authResponse';
+export * from './certificateData';
+export * from './certificateResponse';
+export * from './claimCertificateInput';
+export * from './courseDetail';
+export * from './courseDetailResponse';
+export * from './courseListItem';
+export * from './courseListResponse';
+export * from './courseProgress';
+export * from './courseProgressResponse';
 export * from './errorResponse';
 export * from './freelancer';
 export * from './freelancerInput';
 export * from './freelancerListResponse';
 export * from './freelancerResponse';
 export * from './healthStatus';
+export * from './lesson';
 export * from './listFreelancersParams';
 export * from './listPropertiesParams';
 export * from './loginInput';
@@ -21,5 +31,11 @@ export * from './property';
 export * from './propertyInput';
 export * from './propertyListResponse';
 export * from './propertyResponse';
+export * from './quizAnswer';
+export * from './quizQuestion';
+export * from './quizResult';
+export * from './quizResultResponse';
+export * from './quizSubmissionInput';
 export * from './signupInput';
+export * from './updateProgressInput';
 export * from './user';

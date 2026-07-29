@@ -9,13 +9,10 @@ servers:
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: auth
-    description: Authentication operations
   - name: freelancers
-    description: Freelancer marketplace operations
   - name: properties
-    description: Rental property marketplace operations
+  - name: courses
 paths:
   /healthz:
     get:
@@ -34,7 +31,6 @@ paths:
     post:
       operationId: signup
       tags: [auth]
-      summary: Create a new account
       requestBody:
         required: true
         content:
@@ -65,7 +61,6 @@ paths:
     post:
       operationId: login
       tags: [auth]
-      summary: Log in to an existing account
       requestBody:
         required: true
         content:
@@ -90,7 +85,6 @@ paths:
     get:
       operationId: getMe
       tags: [auth]
-      summary: Get current authenticated user
       responses:
         "200":
           description: Current user
@@ -109,7 +103,6 @@ paths:
     post:
       operationId: logout
       tags: [auth]
-      summary: Log out current session
       responses:
         "200":
           description: Logged out
@@ -122,7 +115,6 @@ paths:
     get:
       operationId: listFreelancers
       tags: [freelancers]
-      summary: List freelancer profiles
       parameters:
         - name: search
           in: query
@@ -144,7 +136,6 @@ paths:
     post:
       operationId: createFreelancer
       tags: [freelancers]
-      summary: Create a freelancer profile
       requestBody:
         required: true
         content:
@@ -169,7 +160,6 @@ paths:
     get:
       operationId: listProperties
       tags: [properties]
-      summary: List rental property listings
       parameters:
         - name: search
           in: query
@@ -206,7 +196,6 @@ paths:
     post:
       operationId: createProperty
       tags: [properties]
-      summary: List a rental property
       requestBody:
         required: true
         content:
@@ -227,6 +216,166 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List all courses
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseListResponse"
+
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      summary: Get course with lessons and quiz
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Course detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetailResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /courses/{id}/progress:
+    get:
+      operationId: getCourseProgress
+      tags: [courses]
+      summary: Get current user progress for a course
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Progress record (may be null)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseProgressResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: updateCourseProgress
+      tags: [courses]
+      summary: Update lesson completion progress
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProgressInput"
+      responses:
+        "200":
+          description: Updated progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseProgressResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /courses/{id}/quiz:
+    post:
+      operationId: submitQuiz
+      tags: [courses]
+      summary: Submit quiz answers and get result
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizSubmissionInput"
+      responses:
+        "200":
+          description: Quiz result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizResultResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /courses/{id}/certificate:
+    post:
+      operationId: claimCertificate
+      tags: [courses]
+      summary: Claim a certificate after passing the quiz
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimCertificateInput"
+      responses:
+        "200":
+          description: Certificate details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CertificateResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Quiz not passed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -234,8 +383,7 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
     User:
       type: object
@@ -454,3 +602,234 @@ components:
       properties:
         property:
           $ref: "#/components/schemas/Property"
+
+    CourseListItem:
+      type: object
+      required: [id, title, description, category, level, durationHours, instructor, certificatePriceGhs, lessonCount, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        level:
+          type: string
+        durationHours:
+          type: integer
+        instructor:
+          type: string
+        coverImageUrl:
+          type: string
+          nullable: true
+        certificatePriceGhs:
+          type: integer
+        lessonCount:
+          type: integer
+        createdAt:
+          type: string
+
+    Lesson:
+      type: object
+      required: [id, courseId, orderNum, title, content, createdAt]
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        orderNum:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+
+    QuizQuestion:
+      type: object
+      required: [id, courseId, orderNum, question, optionA, optionB, optionC, optionD]
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        orderNum:
+          type: integer
+        question:
+          type: string
+        optionA:
+          type: string
+        optionB:
+          type: string
+        optionC:
+          type: string
+        optionD:
+          type: string
+
+    CourseDetail:
+      type: object
+      required: [id, title, description, category, level, durationHours, instructor, certificatePriceGhs, lessonCount, createdAt, lessons, quizQuestions]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        level:
+          type: string
+        durationHours:
+          type: integer
+        instructor:
+          type: string
+        coverImageUrl:
+          type: string
+          nullable: true
+        certificatePriceGhs:
+          type: integer
+        lessonCount:
+          type: integer
+        createdAt:
+          type: string
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lesson"
+        quizQuestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizQuestion"
+
+    CourseProgress:
+      type: object
+      required: [id, userId, courseId, completedLessonIds, quizPassed, certificatePurchased, updatedAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        courseId:
+          type: integer
+        completedLessonIds:
+          type: string
+        quizScore:
+          type: integer
+          nullable: true
+        quizPassed:
+          type: boolean
+        certificatePurchased:
+          type: boolean
+        certificateName:
+          type: string
+          nullable: true
+        certificateId:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+
+    UpdateProgressInput:
+      type: object
+      required: [completedLessonIds]
+      properties:
+        completedLessonIds:
+          type: string
+
+    QuizAnswer:
+      type: object
+      required: [questionId, answer]
+      properties:
+        questionId:
+          type: integer
+        answer:
+          type: string
+
+    QuizSubmissionInput:
+      type: object
+      required: [answers]
+      properties:
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAnswer"
+
+    QuizResult:
+      type: object
+      required: [score, total, passed]
+      properties:
+        score:
+          type: integer
+        total:
+          type: integer
+        passed:
+          type: boolean
+
+    ClaimCertificateInput:
+      type: object
+      required: [name, paymentReference]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        paymentReference:
+          type: string
+          minLength: 1
+
+    CertificateData:
+      type: object
+      required: [certificateId, courseTitle, recipientName, instructor, issuedAt]
+      properties:
+        certificateId:
+          type: string
+        courseTitle:
+          type: string
+        recipientName:
+          type: string
+        instructor:
+          type: string
+        issuedAt:
+          type: string
+
+    CourseListResponse:
+      type: object
+      required: [courses]
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseListItem"
+
+    CourseDetailResponse:
+      type: object
+      required: [course]
+      properties:
+        course:
+          $ref: "#/components/schemas/CourseDetail"
+
+    CourseProgressResponse:
+      type: object
+      required: [progress]
+      properties:
+        progress:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/CourseProgress"
+
+    QuizResultResponse:
+      type: object
+      required: [result]
+      properties:
+        result:
+          $ref: "#/components/schemas/QuizResult"
+
+    CertificateResponse:
+      type: object
+      required: [certificate]
+      properties:
+        certificate:
+          $ref: "#/components/schemas/CertificateData"

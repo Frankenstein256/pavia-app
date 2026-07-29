@@ -21,6 +21,11 @@ import type {
 
 import type {
   AuthResponse,
+  CertificateResponse,
+  ClaimCertificateInput,
+  CourseDetailResponse,
+  CourseListResponse,
+  CourseProgressResponse,
   ErrorResponse,
   FreelancerInput,
   FreelancerListResponse,
@@ -33,7 +38,10 @@ import type {
   PropertyInput,
   PropertyListResponse,
   PropertyResponse,
-  SignupInput
+  QuizResultResponse,
+  QuizSubmissionInput,
+  SignupInput,
+  UpdateProgressInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -133,9 +141,6 @@ export const getSignupUrl = () => {
   return `/api/auth/signup`
 }
 
-/**
- * @summary Create a new account
- */
 export const signup = async (signupInput: SignupInput, options?: RequestInit): Promise<AuthResponse> => {
 
   return customFetch<AuthResponse>(getSignupUrl(),
@@ -182,10 +187,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SignupMutationBody = BodyType<SignupInput>
     export type SignupMutationError = ErrorType<ErrorResponse>
 
-    /**
- * @summary Create a new account
- */
-export const useSignup = <TError = ErrorType<ErrorResponse>,
+    export const useSignup = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,{data: BodyType<SignupInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof signup>>,
@@ -204,9 +206,6 @@ export const getLoginUrl = () => {
   return `/api/auth/login`
 }
 
-/**
- * @summary Log in to an existing account
- */
 export const login = async (loginInput: LoginInput, options?: RequestInit): Promise<AuthResponse> => {
 
   return customFetch<AuthResponse>(getLoginUrl(),
@@ -253,10 +252,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type LoginMutationBody = BodyType<LoginInput>
     export type LoginMutationError = ErrorType<ErrorResponse>
 
-    /**
- * @summary Log in to an existing account
- */
-export const useLogin = <TError = ErrorType<ErrorResponse>,
+    export const useLogin = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof login>>,
@@ -275,9 +271,6 @@ export const getGetMeUrl = () => {
   return `/api/auth/me`
 }
 
-/**
- * @summary Get current authenticated user
- */
 export const getMe = async ( options?: RequestInit): Promise<AuthResponse> => {
 
   return customFetch<AuthResponse>(getGetMeUrl(),
@@ -322,9 +315,6 @@ export type GetMeQueryResult = NonNullable<Awaited<ReturnType<typeof getMe>>>
 export type GetMeQueryError = ErrorType<ErrorResponse>
 
 
-/**
- * @summary Get current authenticated user
- */
 
 export function useGetMe<TData = Awaited<ReturnType<typeof getMe>>, TError = ErrorType<ErrorResponse>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMe>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -352,9 +342,6 @@ export const getLogoutUrl = () => {
   return `/api/auth/logout`
 }
 
-/**
- * @summary Log out current session
- */
 export const logout = async ( options?: RequestInit): Promise<MessageResponse> => {
 
   return customFetch<MessageResponse>(getLogoutUrl(),
@@ -400,10 +387,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type LogoutMutationError = ErrorType<unknown>
 
-    /**
- * @summary Log out current session
- */
-export const useLogout = <TError = ErrorType<unknown>,
+    export const useLogout = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof logout>>,
@@ -429,9 +413,6 @@ export const getListFreelancersUrl = (params?: ListFreelancersParams,) => {
   return stringifiedParams.length > 0 ? `/api/freelancers?${stringifiedParams}` : `/api/freelancers`
 }
 
-/**
- * @summary List freelancer profiles
- */
 export const listFreelancers = async (params?: ListFreelancersParams, options?: RequestInit): Promise<FreelancerListResponse> => {
 
   return customFetch<FreelancerListResponse>(getListFreelancersUrl(params),
@@ -476,9 +457,6 @@ export type ListFreelancersQueryResult = NonNullable<Awaited<ReturnType<typeof l
 export type ListFreelancersQueryError = ErrorType<unknown>
 
 
-/**
- * @summary List freelancer profiles
- */
 
 export function useListFreelancers<TData = Awaited<ReturnType<typeof listFreelancers>>, TError = ErrorType<unknown>>(
  params?: ListFreelancersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFreelancers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -506,9 +484,6 @@ export const getCreateFreelancerUrl = () => {
   return `/api/freelancers`
 }
 
-/**
- * @summary Create a freelancer profile
- */
 export const createFreelancer = async (freelancerInput: FreelancerInput, options?: RequestInit): Promise<FreelancerResponse> => {
 
   return customFetch<FreelancerResponse>(getCreateFreelancerUrl(),
@@ -555,10 +530,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateFreelancerMutationBody = BodyType<FreelancerInput>
     export type CreateFreelancerMutationError = ErrorType<ErrorResponse>
 
-    /**
- * @summary Create a freelancer profile
- */
-export const useCreateFreelancer = <TError = ErrorType<ErrorResponse>,
+    export const useCreateFreelancer = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFreelancer>>, TError,{data: BodyType<FreelancerInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createFreelancer>>,
@@ -584,9 +556,6 @@ export const getListPropertiesUrl = (params?: ListPropertiesParams,) => {
   return stringifiedParams.length > 0 ? `/api/properties?${stringifiedParams}` : `/api/properties`
 }
 
-/**
- * @summary List rental property listings
- */
 export const listProperties = async (params?: ListPropertiesParams, options?: RequestInit): Promise<PropertyListResponse> => {
 
   return customFetch<PropertyListResponse>(getListPropertiesUrl(params),
@@ -631,9 +600,6 @@ export type ListPropertiesQueryResult = NonNullable<Awaited<ReturnType<typeof li
 export type ListPropertiesQueryError = ErrorType<unknown>
 
 
-/**
- * @summary List rental property listings
- */
 
 export function useListProperties<TData = Awaited<ReturnType<typeof listProperties>>, TError = ErrorType<unknown>>(
  params?: ListPropertiesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProperties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -661,9 +627,6 @@ export const getCreatePropertyUrl = () => {
   return `/api/properties`
 }
 
-/**
- * @summary List a rental property
- */
 export const createProperty = async (propertyInput: PropertyInput, options?: RequestInit): Promise<PropertyResponse> => {
 
   return customFetch<PropertyResponse>(getCreatePropertyUrl(),
@@ -710,10 +673,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreatePropertyMutationBody = BodyType<PropertyInput>
     export type CreatePropertyMutationError = ErrorType<ErrorResponse>
 
-    /**
- * @summary List a rental property
- */
-export const useCreateProperty = <TError = ErrorType<ErrorResponse>,
+    export const useCreateProperty = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProperty>>, TError,{data: BodyType<PropertyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createProperty>>,
@@ -722,5 +682,452 @@ export const useCreateProperty = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getCreatePropertyMutationOptions(options));
+    }
+
+export const getListCoursesUrl = () => {
+
+
+
+
+  return `/api/courses`
+}
+
+/**
+ * @summary List all courses
+ */
+export const listCourses = async ( options?: RequestInit): Promise<CourseListResponse> => {
+
+  return customFetch<CourseListResponse>(getListCoursesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoursesQueryKey = () => {
+    return [
+    `/api/courses`
+    ] as const;
+    }
+
+
+export const getListCoursesQueryOptions = <TData = Awaited<ReturnType<typeof listCourses>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCourses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoursesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCourses>>> = ({ signal }) => listCourses({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCourses>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoursesQueryResult = NonNullable<Awaited<ReturnType<typeof listCourses>>>
+export type ListCoursesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all courses
+ */
+
+export function useListCourses<TData = Awaited<ReturnType<typeof listCourses>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCourses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoursesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetCourseUrl = (id: number,) => {
+
+
+
+
+  return `/api/courses/${id}`
+}
+
+/**
+ * @summary Get course with lessons and quiz
+ */
+export const getCourse = async (id: number, options?: RequestInit): Promise<CourseDetailResponse> => {
+
+  return customFetch<CourseDetailResponse>(getGetCourseUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCourseQueryKey = (id: number,) => {
+    return [
+    `/api/courses/${id}`
+    ] as const;
+    }
+
+
+export const getGetCourseQueryOptions = <TData = Awaited<ReturnType<typeof getCourse>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCourse>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCourseQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCourse>>> = ({ signal }) => getCourse(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCourse>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCourseQueryResult = NonNullable<Awaited<ReturnType<typeof getCourse>>>
+export type GetCourseQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get course with lessons and quiz
+ */
+
+export function useGetCourse<TData = Awaited<ReturnType<typeof getCourse>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCourse>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCourseQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetCourseProgressUrl = (id: number,) => {
+
+
+
+
+  return `/api/courses/${id}/progress`
+}
+
+/**
+ * @summary Get current user progress for a course
+ */
+export const getCourseProgress = async (id: number, options?: RequestInit): Promise<CourseProgressResponse> => {
+
+  return customFetch<CourseProgressResponse>(getGetCourseProgressUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCourseProgressQueryKey = (id: number,) => {
+    return [
+    `/api/courses/${id}/progress`
+    ] as const;
+    }
+
+
+export const getGetCourseProgressQueryOptions = <TData = Awaited<ReturnType<typeof getCourseProgress>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCourseProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCourseProgressQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCourseProgress>>> = ({ signal }) => getCourseProgress(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCourseProgress>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCourseProgressQueryResult = NonNullable<Awaited<ReturnType<typeof getCourseProgress>>>
+export type GetCourseProgressQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get current user progress for a course
+ */
+
+export function useGetCourseProgress<TData = Awaited<ReturnType<typeof getCourseProgress>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCourseProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCourseProgressQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateCourseProgressUrl = (id: number,) => {
+
+
+
+
+  return `/api/courses/${id}/progress`
+}
+
+/**
+ * @summary Update lesson completion progress
+ */
+export const updateCourseProgress = async (id: number,
+    updateProgressInput: UpdateProgressInput, options?: RequestInit): Promise<CourseProgressResponse> => {
+
+  return customFetch<CourseProgressResponse>(getUpdateCourseProgressUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateProgressInput,)
+  }
+);}
+
+
+
+
+export const getUpdateCourseProgressMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCourseProgress>>, TError,{id: number;data: BodyType<UpdateProgressInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCourseProgress>>, TError,{id: number;data: BodyType<UpdateProgressInput>}, TContext> => {
+
+const mutationKey = ['updateCourseProgress'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCourseProgress>>, {id: number;data: BodyType<UpdateProgressInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCourseProgress(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCourseProgressMutationResult = NonNullable<Awaited<ReturnType<typeof updateCourseProgress>>>
+    export type UpdateCourseProgressMutationBody = BodyType<UpdateProgressInput>
+    export type UpdateCourseProgressMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update lesson completion progress
+ */
+export const useUpdateCourseProgress = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCourseProgress>>, TError,{id: number;data: BodyType<UpdateProgressInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCourseProgress>>,
+        TError,
+        {id: number;data: BodyType<UpdateProgressInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateCourseProgressMutationOptions(options));
+    }
+
+export const getSubmitQuizUrl = (id: number,) => {
+
+
+
+
+  return `/api/courses/${id}/quiz`
+}
+
+/**
+ * @summary Submit quiz answers and get result
+ */
+export const submitQuiz = async (id: number,
+    quizSubmissionInput: QuizSubmissionInput, options?: RequestInit): Promise<QuizResultResponse> => {
+
+  return customFetch<QuizResultResponse>(getSubmitQuizUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      quizSubmissionInput,)
+  }
+);}
+
+
+
+
+export const getSubmitQuizMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,{id: number;data: BodyType<QuizSubmissionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,{id: number;data: BodyType<QuizSubmissionInput>}, TContext> => {
+
+const mutationKey = ['submitQuiz'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitQuiz>>, {id: number;data: BodyType<QuizSubmissionInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  submitQuiz(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitQuizMutationResult = NonNullable<Awaited<ReturnType<typeof submitQuiz>>>
+    export type SubmitQuizMutationBody = BodyType<QuizSubmissionInput>
+    export type SubmitQuizMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Submit quiz answers and get result
+ */
+export const useSubmitQuiz = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitQuiz>>, TError,{id: number;data: BodyType<QuizSubmissionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitQuiz>>,
+        TError,
+        {id: number;data: BodyType<QuizSubmissionInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitQuizMutationOptions(options));
+    }
+
+export const getClaimCertificateUrl = (id: number,) => {
+
+
+
+
+  return `/api/courses/${id}/certificate`
+}
+
+/**
+ * @summary Claim a certificate after passing the quiz
+ */
+export const claimCertificate = async (id: number,
+    claimCertificateInput: ClaimCertificateInput, options?: RequestInit): Promise<CertificateResponse> => {
+
+  return customFetch<CertificateResponse>(getClaimCertificateUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      claimCertificateInput,)
+  }
+);}
+
+
+
+
+export const getClaimCertificateMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof claimCertificate>>, TError,{id: number;data: BodyType<ClaimCertificateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof claimCertificate>>, TError,{id: number;data: BodyType<ClaimCertificateInput>}, TContext> => {
+
+const mutationKey = ['claimCertificate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof claimCertificate>>, {id: number;data: BodyType<ClaimCertificateInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  claimCertificate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ClaimCertificateMutationResult = NonNullable<Awaited<ReturnType<typeof claimCertificate>>>
+    export type ClaimCertificateMutationBody = BodyType<ClaimCertificateInput>
+    export type ClaimCertificateMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Claim a certificate after passing the quiz
+ */
+export const useClaimCertificate = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof claimCertificate>>, TError,{id: number;data: BodyType<ClaimCertificateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof claimCertificate>>,
+        TError,
+        {id: number;data: BodyType<ClaimCertificateInput>},
+        TContext
+      > => {
+      return useMutation(getClaimCertificateMutationOptions(options));
     }
 

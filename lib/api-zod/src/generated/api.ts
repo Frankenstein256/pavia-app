@@ -16,9 +16,6 @@ export const HealthCheckResponse = zod.object({
 })
 
 
-/**
- * @summary Create a new account
- */
 
 
 
@@ -34,9 +31,6 @@ export const SignupBody = zod.object({
 })
 
 
-/**
- * @summary Log in to an existing account
- */
 
 
 
@@ -57,9 +51,6 @@ export const LoginResponse = zod.object({
 })
 
 
-/**
- * @summary Get current authenticated user
- */
 export const GetMeResponse = zod.object({
   "user": zod.object({
   "id": zod.number(),
@@ -71,17 +62,11 @@ export const GetMeResponse = zod.object({
 })
 
 
-/**
- * @summary Log out current session
- */
 export const LogoutResponse = zod.object({
   "message": zod.string()
 })
 
 
-/**
- * @summary List freelancer profiles
- */
 export const ListFreelancersQueryParams = zod.object({
   "search": zod.coerce.string().optional(),
   "category": zod.coerce.string().optional()
@@ -103,9 +88,6 @@ export const ListFreelancersResponse = zod.object({
 })
 
 
-/**
- * @summary Create a freelancer profile
- */
 
 
 
@@ -128,9 +110,6 @@ export const CreateFreelancerBody = zod.object({
 })
 
 
-/**
- * @summary List rental property listings
- */
 export const ListPropertiesQueryParams = zod.object({
   "search": zod.coerce.string().optional(),
   "location": zod.coerce.string().optional(),
@@ -158,9 +137,6 @@ export const ListPropertiesResponse = zod.object({
 })
 
 
-/**
- * @summary List a rental property
- */
 
 
 
@@ -185,6 +161,168 @@ export const CreatePropertyBody = zod.object({
   "landlordContact": zod.string().min(1),
   "photoUrl": zod.string().optional(),
   "availableDate": zod.string().min(1)
+})
+
+
+/**
+ * @summary List all courses
+ */
+export const ListCoursesResponse = zod.object({
+  "courses": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "level": zod.string(),
+  "durationHours": zod.number(),
+  "instructor": zod.string(),
+  "coverImageUrl": zod.string().nullish(),
+  "certificatePriceGhs": zod.number(),
+  "lessonCount": zod.number(),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
+ * @summary Get course with lessons and quiz
+ */
+export const GetCourseParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCourseResponse = zod.object({
+  "course": zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "level": zod.string(),
+  "durationHours": zod.number(),
+  "instructor": zod.string(),
+  "coverImageUrl": zod.string().nullish(),
+  "certificatePriceGhs": zod.number(),
+  "lessonCount": zod.number(),
+  "createdAt": zod.string(),
+  "lessons": zod.array(zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "orderNum": zod.number(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "createdAt": zod.string()
+})),
+  "quizQuestions": zod.array(zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "orderNum": zod.number(),
+  "question": zod.string(),
+  "optionA": zod.string(),
+  "optionB": zod.string(),
+  "optionC": zod.string(),
+  "optionD": zod.string()
+}))
+})
+})
+
+
+/**
+ * @summary Get current user progress for a course
+ */
+export const GetCourseProgressParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCourseProgressResponse = zod.object({
+  "progress": zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "courseId": zod.number(),
+  "completedLessonIds": zod.string(),
+  "quizScore": zod.number().nullish(),
+  "quizPassed": zod.boolean(),
+  "certificatePurchased": zod.boolean(),
+  "certificateName": zod.string().nullish(),
+  "certificateId": zod.string().nullish(),
+  "updatedAt": zod.string()
+}).nullable()
+})
+
+
+/**
+ * @summary Update lesson completion progress
+ */
+export const UpdateCourseProgressParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateCourseProgressBody = zod.object({
+  "completedLessonIds": zod.string()
+})
+
+export const UpdateCourseProgressResponse = zod.object({
+  "progress": zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "courseId": zod.number(),
+  "completedLessonIds": zod.string(),
+  "quizScore": zod.number().nullish(),
+  "quizPassed": zod.boolean(),
+  "certificatePurchased": zod.boolean(),
+  "certificateName": zod.string().nullish(),
+  "certificateId": zod.string().nullish(),
+  "updatedAt": zod.string()
+}).nullable()
+})
+
+
+/**
+ * @summary Submit quiz answers and get result
+ */
+export const SubmitQuizParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SubmitQuizBody = zod.object({
+  "answers": zod.array(zod.object({
+  "questionId": zod.number(),
+  "answer": zod.string()
+}))
+})
+
+export const SubmitQuizResponse = zod.object({
+  "result": zod.object({
+  "score": zod.number(),
+  "total": zod.number(),
+  "passed": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Claim a certificate after passing the quiz
+ */
+export const ClaimCertificateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+export const ClaimCertificateBody = zod.object({
+  "name": zod.string().min(1),
+  "paymentReference": zod.string().min(1)
+})
+
+export const ClaimCertificateResponse = zod.object({
+  "certificate": zod.object({
+  "certificateId": zod.string(),
+  "courseTitle": zod.string(),
+  "recipientName": zod.string(),
+  "instructor": zod.string(),
+  "issuedAt": zod.string()
+})
 })
 
 

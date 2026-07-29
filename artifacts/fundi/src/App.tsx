@@ -8,6 +8,7 @@ import Work from "@/pages/work";
 import Save from "@/pages/save";
 import Rent from "@/pages/rent";
 import Learn from "@/pages/learn";
+import LearnCourse from "@/pages/learn-course";
 import Signup from "@/pages/signup";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/rent" component={Rent} />
       <Route path="/work" component={Work} />
       <Route path="/learn" component={Learn} />
+      <Route path="/learn/:courseId" component={LearnCourse} />
       <Route path="/signup" component={Signup} />
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={Dashboard} />
