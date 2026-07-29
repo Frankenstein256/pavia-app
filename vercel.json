@@ -1,5 +1,4 @@
 {
-  "rootDirectory": "artifacts/fundi",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
